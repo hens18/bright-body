@@ -1,0 +1,90 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/checkpoint.gd" id="1_checkpoint"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_stone"]
+albedo_color = Color(0.6, 0.58, 0.55, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_wax"]
+albedo_color = Color(0.95, 0.9, 0.78, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_flame"]
+shading_mode = 0
+albedo_color = Color(1, 0.7, 0.25, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_altar"]
+material = SubResource("Mat_stone")
+size = Vector3(1.4, 0.9, 0.8)
+
+[sub_resource type="CylinderMesh" id="Mesh_candle"]
+material = SubResource("Mat_wax")
+top_radius = 0.06
+bottom_radius = 0.06
+height = 0.35
+
+[sub_resource type="SphereMesh" id="Mesh_flame"]
+material = SubResource("Mat_flame")
+radius = 0.05
+height = 0.14
+
+[sub_resource type="BoxShape3D" id="Shape_altar"]
+size = Vector3(1.4, 0.9, 0.8)
+
+[sub_resource type="SphereShape3D" id="Shape_zone"]
+radius = 2.2
+
+[node name="Checkpoint" type="Node3D" groups=["checkpoint"]]
+script = ExtResource("1_checkpoint")
+
+[node name="Altar" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Altar"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+shape = SubResource("Shape_altar")
+
+[node name="Mesh" type="MeshInstance3D" parent="Altar"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+mesh = SubResource("Mesh_altar")
+
+[node name="Candle1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 1.07, 0.1)
+mesh = SubResource("Mesh_candle")
+
+[node name="Candle2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1.4, 0, 0, 0, 1, 0, 1.14, -0.1)
+mesh = SubResource("Mesh_candle")
+
+[node name="Candle3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 1.07, 0.1)
+mesh = SubResource("Mesh_candle")
+
+[node name="Flames" type="Node3D" parent="."]
+
+[node name="Flame1" type="MeshInstance3D" parent="Flames"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 1.3, 0.1)
+mesh = SubResource("Mesh_flame")
+
+[node name="Flame2" type="MeshInstance3D" parent="Flames"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45, -0.1)
+mesh = SubResource("Mesh_flame")
+
+[node name="Flame3" type="MeshInstance3D" parent="Flames"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 1.3, 0.1)
+mesh = SubResource("Mesh_flame")
+
+[node name="Light" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+light_color = Color(1, 0.68, 0.3, 1)
+light_energy = 2.0
+omni_range = 6.0
+shadow_enabled = true
+
+[node name="Zone" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Zone"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("Shape_zone")

@@ -238,5 +238,5 @@ theme_override_font_sizes/font_size = 14
 text = "WASD move | Mouse look | Shift sprint | Space jump
 Ctrl/C dodge | LMB attack (combo)
 Hold RMB aim, LMB shoot (hold to draw bow) | Q switch weapon
-Tab lock on | E open chests | Esc free mouse | R restart"
+Tab lock on | E open chests | Esc free mouse | R respawn"
 vertical_alignment = 2

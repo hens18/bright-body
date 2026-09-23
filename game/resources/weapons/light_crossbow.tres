@@ -1,17 +1,19 @@
 [gd_resource type="Resource" script_class="RangedWeapon" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/combat/ranged_weapon.gd" id="1_weapon"]
-[ext_resource type="PackedScene" path="res://scenes/combat/arrow.tscn" id="2_shot"]
+[ext_resource type="PackedScene" path="res://scenes/combat/bolt.tscn" id="2_shot"]
 
 [resource]
 script = ExtResource("1_weapon")
-display_name = "Longbow"
+display_name = "Light Crossbow"
+kind = 1
+tier = 1
 projectile_scene = ExtResource("2_shot")
-color = Color(0.55, 0.38, 0.2, 1)
-damage = 28.0
-cooldown = 0.15
-projectile_speed = 45.0
-gravity_scale = 0.5
+color = Color(0.35, 0.35, 0.4, 1)
+damage = 26.0
+cooldown = 1.1
+projectile_speed = 58.0
+gravity_scale = 0.1
 homing_strength = 0.0
-charge_time = 0.8
+charge_time = 0.0
 mana_cost = 0.0

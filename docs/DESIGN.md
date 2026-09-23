@@ -12,7 +12,10 @@ are open to change. Things still to settle go in **Open questions**.
 | Team | Solo developer |
 | Length | About 4 hours for a first playthrough |
 | Hero | An unnamed avatar. The player names them and customizes their body only: skin tone, hair color, hairstyle, height and build. |
-| Starting gear | The hero starts with no armor. All armor is found in loot chests. |
+| Starting gear | A worn sword and a plain tunic. No armor and no ranged weapons. |
+| Armor | Found only in loot chests. Five tiers: iron, steel, then one unique set per boss. |
+| Weapons | Low tier swords, bows, crossbows and spells are in loot chests. Higher tiers drop from enemies, mini bosses and bosses. |
+| Death | The hero respawns at the last lit checkpoint shrine with no penalty. Enemies respawn; chests, mini bosses and bosses stay done. |
 | Story | None for now |
 | Camera | Third person, over the shoulder, with lock on |
 | Melee | Three hit combo, stamina cost, dodge roll with invulnerability frames |
@@ -104,12 +107,13 @@ random loot, since every item is handplaced. That keeps balancing manageable for
 2. **Naming and ranged weapons** (done): title screen, longbow, crossbow, magic, mana.
 3. **Hero customization** (done): skin, hair color and style, height and build, with a live 3D preview.
 4. **Armor from loot chests** (done): four iron pieces, defense, chests that stay opened, saved equipment.
-5. **Boss 1, The Warden**: boss framework (phases, health bar, arena), first boss fight.
-6. **Skill tree and inventory**: data driven skills, skill tree menu, inventory and equipment screen.
-7. **Region 1 greybox**: open world streaming, hub, shrines, chests, enemy camps.
-8. **Art pass on Region 1**: gothic kit in Blender (walls, arches, windows, props), lighting.
-9. **Bosses 2 and 3, Regions 2 and 3.**
-10. **Polish**: audio, menus, balancing, performance.
+5. **Weapon loot, mini boss and checkpoints** (done): chest and drop weapons, the Brute Captain, shrines.
+6. **Boss 1, The Warden**: boss framework (phases, health bar, arena), first boss fight.
+7. **Skill tree and inventory**: data driven skills, skill tree menu, inventory and equipment screen.
+8. **Region 1 greybox**: open world streaming, hub, shrines, chests, enemy camps.
+9. **Art pass on Region 1**: gothic kit in Blender (walls, arches, windows, props), lighting.
+10. **Bosses 2 and 3, Regions 2 and 3.**
+11. **Polish**: audio, menus, balancing, performance.
 
 ## Art direction
 
@@ -137,13 +141,37 @@ once the real hero model exists.
 - Armor shows on the hero: each piece is its own mesh in the Blender model, and helmets hide the hair.
 - Opened chests are remembered in the save, so they stay empty. Starting a new game from the title screen
   clears armor and closes every chest.
-- The arena has the four iron pieces (38 defense total). Later sets (steel, then boss rewards) raise defense
-  along with the rising boss difficulty.
+- The arena has the four iron pieces (44 defense total).
+
+## Loot tiers (built)
+
+| Tier | Armor (chests only) | Weapons | Where weapons come from |
+| --- | --- | --- | --- |
+| 1 | Iron set | Iron Sword, Hunting Bow, Light Crossbow, Arcane Bolt | Chests |
+| 2 | Steel set | e.g. Ember Bolt | Chests (steel armor), regular enemies (weapons, chance based) |
+| 3 | Warden's set | e.g. Captain's Longsword | Mini bosses (guaranteed) |
+| 4 | Choir's set | Boss weapons | Boss 2 |
+| 5 | Final boss set | Boss weapons | Final boss |
+
+- The hero carries one sword and one each of bow, crossbow and spell. A find is equipped if it is at least
+  as strong as what is in that slot (defense for armor, damage for weapons). An inventory screen for swapping
+  by hand comes with the skill tree milestone.
+- Enemies have `drop` and `drop_chance` fields, so any enemy can carry any item. Drops float and glow, and
+  are picked up by walking into them.
+- Items are data files (`game/resources/items/`, `game/resources/weapons/`), each with a tier.
+
+## Mini bosses and checkpoints (built)
+
+- **Brute Captain** (arena mini boss): 240 health, super armor (hits never interrupt it), heavy lunging
+  swings, guaranteed drop of the Captain's Longsword. Once beaten it stays dead, even after dying or reloading.
+- **Checkpoint shrines**: stone altars with candles. Touching one lights it, makes it the respawn point and
+  restores health. On death the screen says so, and after 3 seconds (or pressing R) the hero rises at the
+  last lit shrine. Regular enemies come back; opened chests and defeated mini bosses do not.
 
 ## Open questions
 
-1. **Armor tiers**: how many sets across the game? My suggestion: iron (Region 1), steel (Region 2), then a
-   unique set from each boss, about 5 sets in total.
-2. **Weapon loot**: should better swords, bows and crossbows also come from chests, or only armor?
-3. **Death**: when the hero dies, restart at the last checkpoint with no penalty, or drop something (souls
-   style) that can be recovered?
+1. **Mini boss count**: how many per region? My suggestion is two per region, each guarding a high tier
+   weapon, so about six in the game.
+2. **Healing**: besides shrines, should there be healing potions (limited uses, refilled at shrines)?
+3. **Currency and shops**: the pacing plan had shopping in the hub. Keep gold and a merchant, or drop shops
+   entirely so all gear comes from chests and drops?

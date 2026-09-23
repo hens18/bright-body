@@ -1,9 +1,16 @@
 class_name RangedWeapon
 extends Resource
 ## Data for one ranged weapon (bow, crossbow, spell). Create new ones as .tres files
-## in res://resources/weapons/ and add them to the player's `weapons` list.
+## in res://resources/weapons/. Low tiers are placed in chests; high tiers drop from
+## enemies, mini bosses and bosses. The player carries one of each kind.
+
+enum Kind { BOW, CROSSBOW, SPELL }
+
+const KIND_KEYS := ["bow", "crossbow", "spell"]
 
 @export var display_name := "Weapon"
+@export var kind := Kind.BOW
+@export_range(1, 5) var tier := 1
 @export var projectile_scene: PackedScene
 @export var color := Color.WHITE
 
@@ -27,6 +34,18 @@ extends Resource
 
 @export_group("Cost")
 @export var mana_cost := 0.0
+
+
+func slot_key() -> String:
+	return KIND_KEYS[kind]
+
+
+func power() -> float:
+	return damage
+
+
+func summary() -> String:
+	return "%d damage" % damage
 
 
 ## Scale applied to damage and speed for a given draw amount (0 to 1).

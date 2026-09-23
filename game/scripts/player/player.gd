@@ -56,8 +56,6 @@ enum State { MOVE, ATTACK, DODGE, DEAD }
 @export var melee_knockback := 6.0
 
 @export_group("Ranged")
-## Cycled with the switch_weapon action. See res://resources/weapons/.
-@export var weapons: Array[RangedWeapon] = []
 @export var max_mana := 100.0
 @export var mana_regen := 6.0 ## Per second.
 
@@ -67,6 +65,9 @@ enum State { MOVE, ATTACK, DODGE, DEAD }
 var state := State.MOVE
 var stamina: float
 var mana: float
+## Ranged weapons carried (bow, crossbow, spell), cycled with switch_weapon.
+## Filled from GameState's equipped gear; see res://resources/weapons/.
+var weapons: Array[RangedWeapon] = []
 var weapon_index := 0
 var lock_target: Node3D
 
@@ -77,7 +78,7 @@ var _combo_index := 0
 var _attack_queued := false
 var _attack_hit_done := false
 var _dodge_dir := Vector3.ZERO
-var _weapon_cooldowns: Array[float] = [] ## Per weapon, so switching can't skip a reload.
+var _weapon_cooldowns := {} ## Slot key -> seconds left, so switching can't skip a reload.
 var _hurt_timer := 0.0
 var _aiming := false
 var _shake := 0.0
@@ -104,8 +105,6 @@ func _ready() -> void:
 	if _game_state:
 		_game_state.equipment_changed.connect(_refresh_gear)
 	_refresh_gear()
-	_weapon_cooldowns.resize(weapons.size())
-	_weapon_cooldowns.fill(0.0)
 	_spring_arm.spring_length = camera_distance
 	_spring_arm.add_excluded_object(get_rid())
 	health.damaged.connect(_on_damaged)
@@ -128,8 +127,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _physics_process(delta: float) -> void:
 	_state_time += delta
-	for i in _weapon_cooldowns.size():
-		_weapon_cooldowns[i] = maxf(_weapon_cooldowns[i] - delta, 0.0)
+	for key: String in _weapon_cooldowns:
+		_weapon_cooldowns[key] = maxf(_weapon_cooldowns[key] - delta, 0.0)
 	_hurt_timer = maxf(_hurt_timer - delta, 0.0)
 	_oneshot_time = maxf(_oneshot_time - delta, 0.0)
 	health.invulnerable = state == State.DODGE or _hurt_timer > 0.0
@@ -184,6 +183,10 @@ func draw_amount() -> float:
 func defense_multiplier() -> float:
 	var defense: float = _game_state.total_defense() if _game_state else 0.0
 	return 100.0 / (100.0 + defense)
+
+
+func is_alive() -> bool:
+	return state != State.DEAD
 
 
 func is_evading() -> bool:
@@ -273,7 +276,8 @@ func _process_attack(delta: float) -> void:
 	if not _attack_hit_done and _state_time >= attack_hit_time:
 		_attack_hit_done = true
 		var center := global_position + Vector3.UP + fwd * melee_reach
-		var damage := combo_damage[_combo_index]
+		var sword: MeleeWeapon = _game_state.equipped_sword() if _game_state else null
+		var damage := combo_damage[_combo_index] * (sword.damage_scale if sword else 1.0)
 		if Combat.hit_sphere(self, center, melee_radius, &"enemy", damage, fwd * melee_knockback) > 0:
 			_shake = maxf(_shake, 0.12)
 
@@ -353,7 +357,7 @@ func _switch_weapon() -> void:
 ## Bows start drawing on press and fire on release; everything else fires on press.
 func _press_ranged() -> void:
 	var weapon := current_weapon()
-	if weapon == null or _weapon_cooldowns[weapon_index] > 0.0 or state != State.MOVE:
+	if weapon == null or _cooling_down(weapon) or state != State.MOVE:
 		return
 	if weapon.charge_time > 0.0:
 		_drawing = true
@@ -364,15 +368,14 @@ func _press_ranged() -> void:
 
 func _fire(charge: float) -> void:
 	var weapon := current_weapon()
-	if weapon == null or weapon.projectile_scene == null or _weapon_cooldowns[weapon_index] > 0.0 \
-			or state != State.MOVE:
+	if weapon == null or weapon.projectile_scene == null or _cooling_down(weapon) or state != State.MOVE:
 		return
 	if mana < weapon.mana_cost:
 		return
 	if weapon.mana_cost > 0.0:
 		mana -= weapon.mana_cost
 		mana_changed.emit(mana, max_mana)
-	_weapon_cooldowns[weapon_index] = weapon.cooldown
+	_weapon_cooldowns[weapon.slot_key()] = weapon.cooldown
 
 	var power := weapon.charge_scale(charge)
 	var shot := weapon.projectile_scene.instantiate() as Projectile
@@ -506,8 +509,25 @@ func _update_stamina(delta: float) -> void:
 
 func _refresh_gear() -> void:
 	health.damage_multiplier = defense_multiplier()
-	if _game_state:
-		HeroModel.apply(visual.get_node_or_null(^"Hero"), _game_state.appearance, _game_state.equipped_items())
+	if _game_state == null:
+		return
+	var previous := current_weapon()
+	weapons = _game_state.equipped_ranged()
+	# Keep the same kind of weapon selected when it gets upgraded.
+	weapon_index = 0
+	for i in weapons.size():
+		if previous and weapons[i].kind == previous.kind:
+			weapon_index = i
+	if current_weapon() != previous:
+		_drawing = false
+		weapon_changed.emit(current_weapon())
+	var sword: MeleeWeapon = _game_state.equipped_sword()
+	HeroModel.apply(visual.get_node_or_null(^"Hero"), _game_state.appearance, _game_state.equipped_armor(),
+			sword.blade_color if sword else Color.TRANSPARENT)
+
+
+func _cooling_down(weapon: RangedWeapon) -> bool:
+	return _weapon_cooldowns.get(weapon.slot_key(), 0.0) > 0.0
 
 
 func _update_mana(delta: float) -> void:

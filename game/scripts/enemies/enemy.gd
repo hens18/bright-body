@@ -3,11 +3,16 @@ extends CharacterBody3D
 ## Basic enemy brain. MELEE enemies close in and swing after a visible windup.
 ## RANGED enemies keep their distance and fire projectiles. Hitting an enemy
 ## during its windup staggers it and cancels the attack.
+##
+## Enemies can drop loot (high tier weapons come from mobs, mini bosses and bosses).
+## Give mini bosses and bosses a persistent_id so they stay dead once beaten.
 
 signal defeated(enemy: Enemy)
 
 enum Kind { MELEE, RANGED }
 enum State { IDLE, CHASE, WINDUP, RECOVER, STAGGER, DEAD }
+
+const LOOT_DROP := preload("res://scenes/world/loot_drop.tscn")
 
 @export var kind := Kind.MELEE
 @export var body_color := Color(0.85, 0.3, 0.25)
@@ -31,7 +36,16 @@ enum State { IDLE, CHASE, WINDUP, RECOVER, STAGGER, DEAD }
 @export var lunge_speed := 7.0
 @export var knockback := 7.0
 @export var stagger_time := 0.35
+## False gives super armor: hits never interrupt it (mini bosses, bosses).
+@export var can_stagger := true
 @export var projectile_scene: PackedScene
+
+@export_group("Loot")
+## Item resource (weapon or armor) this enemy may drop.
+@export var drop: Resource
+@export_range(0.0, 1.0) var drop_chance := 1.0
+## Set for mini bosses and bosses: once defeated they never come back.
+@export var persistent_id := ""
 
 var state := State.IDLE
 var target: Player
@@ -40,12 +54,17 @@ var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _state_time := 0.0
 var _material := StandardMaterial3D.new()
 
+@onready var _game_state: Node = get_node_or_null(^"/root/GameState")
 @onready var visual: Node3D = $Visual
 @onready var health: Health = $Health
 @onready var _muzzle: Marker3D = $Visual/Muzzle
 
 
 func _ready() -> void:
+	if not persistent_id.is_empty() and _game_state and _game_state.is_defeated(persistent_id):
+		state = State.DEAD
+		queue_free()
+		return
 	_material.albedo_color = body_color
 	for mesh in visual.find_children("*", "MeshInstance3D"):
 		(mesh as MeshInstance3D).material_override = _material
@@ -167,8 +186,11 @@ func _on_damaged(_amount: float, _source: Node) -> void:
 	if state == State.DEAD:
 		return
 	# Getting hit interrupts the windup and makes the enemy aggressive.
-	_material.emission_enabled = false
-	_set_state(State.STAGGER)
+	if can_stagger:
+		_material.emission_enabled = false
+		_set_state(State.STAGGER)
+	elif state == State.IDLE:
+		_set_state(State.CHASE)
 	var flash := create_tween()
 	_material.albedo_color = Color.WHITE
 	flash.tween_property(_material, "albedo_color", body_color, 0.18)
@@ -180,6 +202,13 @@ func _on_died() -> void:
 	collision_layer = 0
 	_material.emission_enabled = false
 	defeated.emit(self)
+	if not persistent_id.is_empty() and _game_state:
+		_game_state.mark_defeated(persistent_id)
+	if drop and randf() < drop_chance:
+		var loot := LOOT_DROP.instantiate()
+		loot.item = drop
+		get_tree().current_scene.add_child(loot)
+		loot.global_position = global_position
 	var tween := create_tween()
 	tween.tween_property(visual, "scale", Vector3.ONE * 0.05, 0.4).set_ease(Tween.EASE_IN)
 	tween.tween_callback(queue_free)

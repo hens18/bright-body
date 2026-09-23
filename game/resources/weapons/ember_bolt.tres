@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="RangedWeapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/ranged_weapon.gd" id="1_weapon"]
+[ext_resource type="PackedScene" path="res://scenes/combat/projectile.tscn" id="2_shot"]
+
+[resource]
+script = ExtResource("1_weapon")
+display_name = "Ember Bolt"
+kind = 2
+tier = 2
+projectile_scene = ExtResource("2_shot")
+color = Color(1, 0.5, 0.15, 1)
+damage = 22.0
+cooldown = 0.4
+projectile_speed = 26.0
+gravity_scale = 0.0
+homing_strength = 5.0
+charge_time = 0.0
+mana_cost = 14.0

@@ -1,0 +1,40 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/enemies/enemy.tscn" id="1_base"]
+[ext_resource type="Resource" path="res://resources/weapons/captains_longsword.tres" id="2_drop"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_captain"]
+radius = 0.6
+height = 2.4
+
+[node name="BruteCaptain" instance=ExtResource("1_base")]
+body_color = Color(0.55, 0.4, 0.18, 1)
+move_speed = 3.4
+detect_range = 12.0
+attack_range = 2.4
+damage = 28.0
+windup_time = 0.75
+recover_time = 1.1
+lunge_speed = 9.0
+knockback = 11.0
+can_stagger = false
+drop = ExtResource("2_drop")
+persistent_id = "arena_brute_captain"
+
+[node name="CollisionShape3D" parent="." index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+shape = SubResource("CapsuleShape3D_captain")
+
+[node name="Health" parent="." index="1"]
+max_health = 240.0
+
+[node name="Visual" parent="." index="2"]
+transform = Transform3D(1.35, 0, 0, 0, 1.35, 0, 0, 0, 1.35, 0, 0, 0)
+
+[node name="Nameplate" type="Label3D" parent="." index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.1, 0)
+billboard = 1
+font_size = 44
+outline_size = 10
+modulate = Color(1, 0.8, 0.45, 1)
+text = "Brute Captain"

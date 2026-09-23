@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene load_steps=29 format=3]
 
 [ext_resource type="Script" path="res://scripts/levels/level.gd" id="1_level"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
@@ -10,6 +10,13 @@
 [ext_resource type="Resource" path="res://resources/items/iron_cuirass.tres" id="8_cuirass"]
 [ext_resource type="Resource" path="res://resources/items/iron_gauntlets.tres" id="9_gauntlets"]
 [ext_resource type="Resource" path="res://resources/items/iron_greaves.tres" id="10_greaves"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/enemy_captain.tscn" id="11_captain"]
+[ext_resource type="PackedScene" path="res://scenes/world/checkpoint.tscn" id="12_checkpoint"]
+[ext_resource type="Resource" path="res://resources/weapons/iron_sword.tres" id="13_iron_sword"]
+[ext_resource type="Resource" path="res://resources/weapons/hunting_bow.tres" id="14_bow"]
+[ext_resource type="Resource" path="res://resources/weapons/light_crossbow.tres" id="15_crossbow"]
+[ext_resource type="Resource" path="res://resources/weapons/arcane_bolt.tres" id="16_arcane"]
+[ext_resource type="Resource" path="res://resources/weapons/ember_bolt.tres" id="17_ember"]
 
 [sub_resource type="ProceduralSkyMaterial" id="Sky_mat"]
 sky_top_color = Color(0.28, 0.45, 0.75, 1)
@@ -183,6 +190,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 2, -13)
 
 [node name="Caster2" parent="Enemies" instance=ExtResource("4_ranged")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, -22)
+drop = ExtResource("17_ember")
+drop_chance = 0.35
+
+[node name="BruteCaptain" parent="Enemies" instance=ExtResource("11_captain")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, 18)
+
+[node name="Checkpoints" type="Node3D" parent="."]
+
+[node name="StartShrine" parent="Checkpoints" instance=ExtResource("12_checkpoint")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -4, 0, 27)
+
+[node name="CenterShrine" parent="Checkpoints" instance=ExtResource("12_checkpoint")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -24)
 
 [node name="Chests" type="Node3D" parent="."]
 
@@ -205,5 +225,25 @@ loot = ExtResource("8_cuirass")
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -8, 0, -16)
 chest_id = "arena_greaves"
 loot = ExtResource("10_greaves")
+
+[node name="SwordChest" parent="Chests" instance=ExtResource("6_chest")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 17)
+chest_id = "arena_iron_sword"
+loot = ExtResource("13_iron_sword")
+
+[node name="BowChest" parent="Chests" instance=ExtResource("6_chest")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -27, 0, 0)
+chest_id = "arena_hunting_bow"
+loot = ExtResource("14_bow")
+
+[node name="CrossbowChest" parent="Chests" instance=ExtResource("6_chest")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 27, 0, -26)
+chest_id = "arena_light_crossbow"
+loot = ExtResource("15_crossbow")
+
+[node name="SpellChest" parent="Chests" instance=ExtResource("6_chest")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 12)
+chest_id = "arena_arcane_bolt"
+loot = ExtResource("16_arcane")
 
 [node name="HUD" parent="." instance=ExtResource("5_hud")]

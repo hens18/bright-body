@@ -1,10 +1,11 @@
 class_name HeroModel
 extends RefCounted
 ## Dresses a hero model instance (the root of the imported .glb): body shape and
-## colors from HeroAppearance, visible hair style, and equipped armor pieces.
+## colors from HeroAppearance, visible hair style, equipped armor pieces and the
+## sword's blade color.
 ##
-## Model contract (see blender/README.md): materials named "Skin" and "Hair" are
-## recolored; meshes named Hair_Short / Hair_Long and Armor_* are toggled.
+## Model contract (see blender/README.md): materials named "Skin", "Hair" and
+## "Blade" are recolored; meshes named Hair_Short / Hair_Long and Armor_* are toggled.
 
 const HAIR_PARTS := {
 	HeroAppearance.Hairstyle.SHORT: "Hair_Short",
@@ -13,7 +14,9 @@ const HAIR_PARTS := {
 const ARMOR_PREFIX := "Armor_"
 
 
-static func apply(model: Node3D, appearance: HeroAppearance, armor: Array[ArmorItem] = []) -> void:
+## Pass Color.TRANSPARENT as blade_color to keep the model's own blade material.
+static func apply(model: Node3D, appearance: HeroAppearance, armor: Array[ArmorItem] = [],
+		blade_color := Color.TRANSPARENT) -> void:
 	if model == null:
 		return
 	model.scale = Vector3(appearance.build, appearance.height, appearance.build)
@@ -31,7 +34,10 @@ static func apply(model: Node3D, appearance: HeroAppearance, armor: Array[ArmorI
 			mesh_instance.visible = worn_parts.has(part)
 		elif part.begins_with("Hair_"):
 			mesh_instance.visible = part == hair_part and not hide_hair
-		_recolor(mesh_instance, {"Skin": appearance.skin_tone, "Hair": appearance.hair_color})
+		var colors := {"Skin": appearance.skin_tone, "Hair": appearance.hair_color}
+		if blade_color.a > 0.0:
+			colors["Blade"] = blade_color
+		_recolor(mesh_instance, colors)
 
 
 static func _recolor(mesh_instance: MeshInstance3D, colors: Dictionary) -> void:

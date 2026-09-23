@@ -1,12 +1,14 @@
 extends Node3D
-## A chest the player opens with the interact action to receive its loot.
+## A chest the player opens with the interact action to receive its loot
+## (armor and low tier weapons).
 ## Opened chests are remembered by GameState, so they stay empty after a reload.
 
-signal opened(item: ArmorItem)
+signal opened(item: Resource)
 
 ## Unique id used to remember that this chest was looted. Defaults to the node path.
 @export var chest_id := ""
-@export var loot: ArmorItem
+## Any item: ArmorItem, MeleeWeapon or RangedWeapon.
+@export var loot: Resource
 
 var is_open := false
 var _player_near := false

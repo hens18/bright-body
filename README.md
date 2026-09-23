@@ -5,8 +5,8 @@ A stylized gothic medieval 3D action adventure for PC, with an open world, a ski
 Art and animation are made in **Blender**, and the game runs in **Godot 4**.
 
 The game is currently a **playable combat prototype**: a title screen where you name your hero and shape their
-body, a greybox arena, melee combat, three ranged weapons (longbow, crossbow, magic), two enemy types, and
-loot chests holding armor.
+body, a greybox arena, melee combat, three ranged weapon types (bow, crossbow, magic), two enemy types, a
+mini boss, loot chests and enemy drops, and checkpoint shrines.
 
 ## Getting started
 
@@ -30,7 +30,7 @@ loot chests holding armor.
 | Switch ranged weapon | Q | Y / Triangle |
 | Open chest | E | X / Square |
 | Lock on / release | Tab or middle click | R3 |
-| Restart | R | Start |
+| Respawn at last checkpoint | R | Start |
 | Free the mouse | Esc | |
 
 ## What the prototype has
@@ -44,12 +44,17 @@ loot chests holding armor.
 - **Title screen and profile** (`game/scripts/autoload/game_state.gd`): the hero's name and body (skin, hair
   color and style, height, build, see `game/scripts/player/hero_appearance.gd`), equipped armor and opened
   chests, saved to disk.
-- **Armor and loot chests** (`game/scripts/items/armor_item.gd`, `game/scenes/world/loot_chest.tscn`): the hero
-  starts unarmored. Chests hold armor pieces (`game/resources/items/`) that add defense and appear on the hero.
+- **Loot** (`game/scripts/items/`, `game/scenes/world/loot_chest.tscn`, `loot_drop.tscn`): the hero starts with
+  a worn sword only. Chests hold armor (`game/resources/items/`) and low tier weapons
+  (`game/resources/weapons/`); stronger weapons drop from enemies and mini bosses. Armor adds defense and
+  appears on the hero.
+- **Checkpoints** (`game/scenes/world/checkpoint.tscn`): candlelit shrines that set the respawn point and
+  restore health. After dying, the hero rises at the last one lit.
   This grows into the save system.
 - **Enemies** (`game/scripts/enemies/enemy.gd`): *Brutes* (red) close in and swing after a glowing windup.
   *Casters* (purple) keep their distance and throw slow, dodgeable projectiles. Hitting an enemy during its
-  windup staggers it and cancels the attack.
+  windup staggers it and cancels the attack. The *Brute Captain* (bronze) is a mini boss with super armor
+  that drops a high tier sword and stays dead once beaten.
 - **Level** (`game/scenes/levels/main.tscn`): a greybox arena built from CSG shapes, with pillars, cover,
   a ramp to a raised platform and jump steps.
 - **HUD**: hero name, health, stamina, mana, defense, loot pop ups, current weapon, bow draw meter, enemy counter, crosshair and a
@@ -80,7 +85,8 @@ with `blender/scripts/export_glb.py`, and Godot re-imports it on the next focus.
 ## Testing
 
 A headless smoke test loads the level, drives the player with simulated input and checks movement,
-naming and customizing the hero, opening chests and wearing armor, melee, dodging, all three ranged weapons, lock on, enemy attacks and enemy death:
+naming and customizing the hero, chests, armor, weapon loot, enemy drops, the mini boss, checkpoints and
+respawning, melee, dodging, all three ranged weapons, lock on, enemy attacks and enemy death:
 
 ```
 godot --headless --path game --import

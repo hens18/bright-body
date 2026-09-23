@@ -18,6 +18,7 @@ var _toast_tween: Tween
 
 func _ready() -> void:
 	GameState.item_obtained.connect(_on_item_obtained)
+	GameState.checkpoint_reached.connect(func(_id: String) -> void: show_toast("Checkpoint lit. Health restored."))
 	GameState.equipment_changed.connect(_update_defense)
 	_update_defense()
 @onready var _enemy_label: Label = %EnemyLabel
@@ -82,15 +83,20 @@ func _on_mana_changed(current: float, maximum: float) -> void:
 
 
 func _on_weapon_changed(weapon: RangedWeapon) -> void:
-	_weapon_label.text = weapon.display_name if weapon else ""
+	_weapon_label.text = weapon.display_name if weapon else "No ranged weapon"
 
 
 func _update_defense() -> void:
 	_defense_label.text = "Defense %d" % GameState.total_defense()
 
 
-func _on_item_obtained(item: ArmorItem) -> void:
-	_toast.text = "Found %s  (+%d defense)" % [item.display_name, item.defense]
+func _on_item_obtained(item: Resource, equipped: bool) -> void:
+	var note: String = item.summary() if equipped else "your current one is better"
+	show_toast("Found %s  (%s)" % [item.display_name, note])
+
+
+func show_toast(text: String) -> void:
+	_toast.text = text
 	_toast.visible = true
 	_toast.modulate.a = 1.0
 	if _toast_tween:
