@@ -23,7 +23,7 @@ are open to change. Things still to settle go in **Open questions**.
 | World | Open world |
 | Progression | Skill tree that unlocks new abilities, plus gear |
 | Bosses | Three boss fights, each harder than the last |
-| Art style | Stylized gothic: stone arches, stained glass, candlelight. Chunky shapes and painted colors rather than realism. |
+| Art style | Realistic gothic medieval: stone arches, stained glass, candlelight, physically based textures. |
 | Platform | PC only (keyboard/mouse first, gamepad supported) |
 | Title | "Bright Body" is a working title only, with no story meaning |
 | Skill tree | The three branch proposal below is approved |
@@ -117,13 +117,20 @@ random loot, since every item is handplaced. That keeps balancing manageable for
 
 ## Art direction
 
-- **Stylized gothic**: exaggerated proportions (tall pointed arches, thick buttresses, chunky stonework),
-  flat or lightly painted textures, strong color from stained glass and warm candlelight against cool stone.
-- **Palette**: cool grey and blue stone, warm gold and orange light, saturated jewel tones in glass.
-- **Lighting**: shafts of colored light through windows, candle clusters as local warm lights, fog for depth.
-- **Modular kit**: walls, arches, pillars, windows, stairs and floor tiles built on a 2 m grid in Blender, so
-  levels snap together in Godot. Collision via the `-col` / `-colonly` suffixes (see `blender/README.md`).
-- **Characters**: blocky, readable silhouettes that match the placeholder hero's proportions.
+Realistic, replacing the earlier stylized plan.
+
+- **Materials**: physically based (PBR) textures on everything: base color, normal, roughness and ambient
+  occlusion maps. Environment materials live in `game/resources/materials/` and use world space triplanar
+  mapping, so level geometry needs no UV unwrapping.
+- **Textures**: `tools/textures/generate_textures.py` makes seamless stand ins (castle wall, flagstone, cut
+  stone, old wood, dark iron). Photo scanned CC0 sets (Poly Haven, ambientCG) can replace any of them by
+  dropping files with the same names into `game/assets/textures/<set>/`.
+- **Lighting**: low warm sun with soft shadows, neutral ambient fill, screen space ambient occlusion and
+  indirect light, volumetric fog for depth, ACES tone mapping. Candles and shrines as warm local lights.
+- **Architecture**: gothic castle and cathedral: tall stone walls with battlements, columns with bases and
+  capitals, pointed arches and stained glass to come.
+- **Characters**: the blocky placeholder hero and capsule enemies must be replaced with realistic rigged
+  models (see open questions).
 
 ## Hero customization (built)
 
@@ -170,8 +177,10 @@ once the real hero model exists.
 
 ## Open questions
 
-1. **Mini boss count**: how many per region? My suggestion is two per region, each guarding a high tier
-   weapon, so about six in the game.
-2. **Healing**: besides shrines, should there be healing potions (limited uses, refilled at shrines)?
-3. **Currency and shops**: the pacing plan had shopping in the hub. Keep gold and a merchant, or drop shops
-   entirely so all gear comes from chests and drops?
+1. **Realistic characters**: how should we source the hero and enemy models? Options:
+   - Mixamo (free with an Adobe account): rigged realistic characters plus hundreds of animations.
+   - A purchased asset pack (for example on Fab or the Unity Asset Store, where licenses allow Godot use).
+   - Generating models with an AI 3D tool, then rigging them in Blender (uses paid credits, quality varies).
+2. **Mini boss count**: two per region (about six total)?
+3. **Healing**: healing potions with limited uses, refilled at shrines?
+4. **Shops**: keep gold and a merchant, or all gear from chests and drops?

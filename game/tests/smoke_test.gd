@@ -67,6 +67,7 @@ func _test_armor_chests() -> void:
 	var player: Player = current_scene.get_node("Player")
 	player.global_position = chest.global_position + Vector3(0, 0.1, 1.5)
 	await _frames(4)
+	await _idle_frames(2) # The prompt updates in _process, which can lag behind physics.
 	_check(chest.get_node("Prompt").visible, "chest shows an open prompt nearby")
 	await _tap("interact")
 	_check(chest.is_open and game_state.total_defense() > 0.0, "interact opens the chest and grants armor")
@@ -287,6 +288,11 @@ func _check(condition: bool, label: String) -> void:
 func _frames(count: int) -> void:
 	for i in count:
 		await physics_frame
+
+
+func _idle_frames(count: int) -> void:
+	for i in count:
+		await process_frame
 
 
 func _seconds(time: float) -> void:
