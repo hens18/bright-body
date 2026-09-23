@@ -1,0 +1,15 @@
+# Godot
+game/.godot/
+game/build/
+*.translation
+
+# Blender backups and caches
+*.blend1
+*.blend2
+__pycache__/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

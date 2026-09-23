@@ -1,0 +1,12 @@
+# Normalize text files, keep Godot resources with LF endings.
+* text=auto eol=lf
+
+# Binary assets. Consider Git LFS once these grow (see README).
+*.blend binary
+*.glb binary
+*.gltf -text
+*.png binary
+*.jpg binary
+*.wav binary
+*.ogg binary
+*.mp3 binary
