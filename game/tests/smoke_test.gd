@@ -11,6 +11,20 @@ func _initialize() -> void:
 
 
 func _run() -> void:
+	# Title screen: naming the hero stores the name and starts the game.
+	var game_state := root.get_node("GameState") # Autoload names are not visible to --script runners.
+	var saved_name: String = game_state.hero_name # Restored at the end so the test leaves the profile alone.
+	change_scene_to_file("res://scenes/ui/title_screen.tscn")
+	await _frames(3)
+	var name_edit: LineEdit = current_scene.get_node("%NameEdit")
+	name_edit.text = "  Sir Testalot  "
+	name_edit.text_changed.emit(name_edit.text)
+	current_scene.get_node("%BeginButton").pressed.emit()
+	await _frames(5)
+	_check(game_state.hero_name == "Sir Testalot", "title screen stores the trimmed hero name")
+	_check(current_scene.scene_file_path == "res://scenes/levels/main.tscn", "Begin starts the level")
+	_check(current_scene.get_node("HUD/Bars/NameLabel").text == "Sir Testalot", "HUD shows the hero name")
+
 	change_scene_to_file("res://scenes/levels/main.tscn")
 	await _frames(5)
 	var level := current_scene
@@ -47,15 +61,40 @@ func _run() -> void:
 	_check(player.stamina < stamina_before, "dodge spends stamina")
 	await _seconds(0.5)
 
-	# Ranged: aim and fire, a projectile should spawn.
+	# Ranged weapons. Lock on first so the shots have a target to home in on.
+	Input.action_press("lock_on")
+	await _frames(2)
+	Input.action_release("lock_on")
 	Input.action_press("aim")
 	await _frames(2)
+
+	# Longbow: hold to draw, release to fire.
+	_check(player.current_weapon().display_name == "Longbow", "starts with the longbow")
 	Input.action_press("attack")
-	await _frames(3)
+	await _seconds(0.5)
+	_check(player.draw_amount() > 0.4, "holding attack draws the bow (%.2f)" % player.draw_amount())
+	_check(_count_shots(level) == 0, "bow does not fire while drawing")
 	Input.action_release("attack")
+	await _frames(3)
+	_check(_count_shots(level) > 0, "releasing the bow fires an arrow")
+
+	# Crossbow: fires on press, then has to reload.
+	await _seconds(0.3)
+	await _tap("switch_weapon")
+	_check(player.current_weapon().display_name == "Crossbow", "Q switches to the crossbow")
+	var before := _count_shots(level)
+	await _tap("attack")
+	await _tap("attack")
+	_check(_count_shots(level) == before + 1, "crossbow fires once, then reloads")
+
+	# Magic: costs mana.
+	await _tap("switch_weapon")
+	_check(player.current_weapon().display_name == "Arcane Bolt", "Q switches to magic")
+	var mana_before := player.mana
+	await _tap("attack")
+	_check(player.mana < mana_before, "magic spends mana")
 	Input.action_release("aim")
-	var shots := level.get_children().filter(func(n): return n is Projectile)
-	_check(shots.size() > 0, "aimed attack fires a projectile")
+	await _tap("lock_on")
 
 	# Lock on picks a living enemy.
 	Input.action_press("lock_on")
@@ -74,10 +113,24 @@ func _run() -> void:
 	await _seconds(0.6)
 	_check(level.get_node("Enemies").get_child_count() == 0, "defeated enemies are removed")
 
+	game_state.hero_name = saved_name
+	game_state.save_profile()
+
 	for failure in _failures:
 		printerr("FAIL: ", failure)
 	print("Smoke test: %s" % ("PASSED" if _failures.is_empty() else "FAILED"))
 	quit(0 if _failures.is_empty() else 1)
+
+
+func _count_shots(level: Node) -> int:
+	return level.get_children().filter(func(n: Node) -> bool: return n is Projectile and n.shooter is Player).size()
+
+
+func _tap(action: StringName) -> void:
+	Input.action_press(action)
+	await _frames(2)
+	Input.action_release(action)
+	await _frames(1)
 
 
 func _check(condition: bool, label: String) -> void:

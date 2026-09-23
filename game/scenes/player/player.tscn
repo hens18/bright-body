@@ -1,8 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/components/health.gd" id="2_health"]
-[ext_resource type="PackedScene" path="res://scenes/combat/projectile.tscn" id="3_shot"]
+[ext_resource type="Script" path="res://scripts/combat/ranged_weapon.gd" id="3_weapon"]
+[ext_resource type="Resource" path="res://resources/weapons/bow.tres" id="5_bow"]
+[ext_resource type="Resource" path="res://resources/weapons/crossbow.tres" id="6_crossbow"]
+[ext_resource type="Resource" path="res://resources/weapons/magic.tres" id="7_magic"]
 [ext_resource type="PackedScene" path="res://assets/models/hero_placeholder.glb" id="4_hero"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
@@ -13,7 +16,7 @@ height = 1.8
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_player")
-projectile_scene = ExtResource("3_shot")
+weapons = Array[ExtResource("3_weapon")]([ExtResource("5_bow"), ExtResource("6_crossbow"), ExtResource("7_magic")])
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)

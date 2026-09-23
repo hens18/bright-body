@@ -1,11 +1,16 @@
 extends CanvasLayer
-## Health and stamina bars, crosshair, lock on marker and center screen messages.
+## Hero name, health, stamina and mana bars, current weapon, bow draw meter,
+## crosshair, lock on marker and center screen messages.
 
 var player: Player:
 	set = set_player
 
 @onready var _health_bar: ProgressBar = %HealthBar
 @onready var _stamina_bar: ProgressBar = %StaminaBar
+@onready var _mana_bar: ProgressBar = %ManaBar
+@onready var _name_label: Label = %NameLabel
+@onready var _weapon_label: Label = %WeaponLabel
+@onready var _draw_bar: ProgressBar = %DrawBar
 @onready var _enemy_label: Label = %EnemyLabel
 @onready var _message: Label = %Message
 @onready var _crosshair: Control = %Crosshair
@@ -18,14 +23,22 @@ func set_player(value: Player) -> void:
 	player.health.changed.connect(_on_health_changed)
 	player.health.damaged.connect(_on_player_damaged)
 	player.stamina_changed.connect(_on_stamina_changed)
+	player.mana_changed.connect(_on_mana_changed)
+	player.weapon_changed.connect(_on_weapon_changed)
 	_on_health_changed(player.health.current, player.health.max_health)
 	_on_stamina_changed(player.stamina, player.max_stamina)
+	_on_mana_changed(player.mana, player.max_mana)
+	_on_weapon_changed(player.current_weapon())
+	_name_label.text = GameState.display_name()
 
 
 func _process(_delta: float) -> void:
 	if player == null:
 		return
 	_crosshair.visible = player.is_aiming()
+	var draw := player.draw_amount()
+	_draw_bar.visible = draw > 0.0
+	_draw_bar.value = draw
 	var target := player.lock_target
 	var show_marker := target != null and is_instance_valid(target) \
 			and not player.camera.is_position_behind(target.global_position)
@@ -52,6 +65,15 @@ func _on_health_changed(current: float, maximum: float) -> void:
 func _on_stamina_changed(current: float, maximum: float) -> void:
 	_stamina_bar.max_value = maximum
 	_stamina_bar.value = current
+
+
+func _on_mana_changed(current: float, maximum: float) -> void:
+	_mana_bar.max_value = maximum
+	_mana_bar.value = current
+
+
+func _on_weapon_changed(weapon: RangedWeapon) -> void:
+	_weapon_label.text = weapon.display_name if weapon else ""
 
 
 func _on_player_damaged(_amount: float, _source: Node) -> void:

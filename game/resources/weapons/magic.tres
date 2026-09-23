@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="RangedWeapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/ranged_weapon.gd" id="1_weapon"]
+[ext_resource type="PackedScene" path="res://scenes/combat/projectile.tscn" id="2_shot"]
+
+[resource]
+script = ExtResource("1_weapon")
+display_name = "Arcane Bolt"
+projectile_scene = ExtResource("2_shot")
+color = Color(0.45, 0.7, 1, 1)
+damage = 14.0
+cooldown = 0.35
+projectile_speed = 22.0
+gravity_scale = 0.0
+homing_strength = 4.0
+charge_time = 0.0
+mana_cost = 12.0

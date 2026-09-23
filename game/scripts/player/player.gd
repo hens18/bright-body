@@ -1,7 +1,7 @@
 class_name Player
 extends CharacterBody3D
 ## Third person action hero: camera relative movement, sprint, jump, dodge roll,
-## a three hit melee combo, aimed ranged shots and enemy lock on.
+## a three hit melee combo, aimed ranged weapons (bow, crossbow, magic) and enemy lock on.
 ##
 ## The placeholder body lives under "Visual". To use a Blender model, drop its
 ## .glb under Visual and delete the placeholder meshes. If the model has an
@@ -9,6 +9,8 @@ extends CharacterBody3D
 ## Hurt or Death, they are played automatically.
 
 signal stamina_changed(current: float, maximum: float)
+signal mana_changed(current: float, maximum: float)
+signal weapon_changed(weapon: RangedWeapon)
 signal lock_target_changed(target: Node3D)
 
 enum State { MOVE, ATTACK, DODGE, DEAD }
@@ -53,15 +55,18 @@ enum State { MOVE, ATTACK, DODGE, DEAD }
 @export var melee_knockback := 6.0
 
 @export_group("Ranged")
-@export var projectile_scene: PackedScene
-@export var shot_damage := 12.0
-@export var shot_cooldown := 0.22
+## Cycled with the switch_weapon action. See res://resources/weapons/.
+@export var weapons: Array[RangedWeapon] = []
+@export var max_mana := 100.0
+@export var mana_regen := 6.0 ## Per second.
 
 @export_group("Damage")
 @export var hurt_invulnerability := 0.6
 
 var state := State.MOVE
 var stamina: float
+var mana: float
+var weapon_index := 0
 var lock_target: Node3D
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
@@ -71,12 +76,14 @@ var _combo_index := 0
 var _attack_queued := false
 var _attack_hit_done := false
 var _dodge_dir := Vector3.ZERO
-var _shot_timer := 0.0
+var _weapon_cooldowns: Array[float] = [] ## Per weapon, so switching can't skip a reload.
 var _hurt_timer := 0.0
 var _aiming := false
 var _shake := 0.0
 var _swing_tween: Tween
 var _oneshot_time := 0.0
+var _drawing := false
+var _draw_time := 0.0
 
 @onready var visual: Node3D = $Visual
 @onready var health: Health = $Health
@@ -90,6 +97,9 @@ var _oneshot_time := 0.0
 
 func _ready() -> void:
 	stamina = max_stamina
+	mana = max_mana
+	_weapon_cooldowns.resize(weapons.size())
+	_weapon_cooldowns.fill(0.0)
 	_spring_arm.spring_length = camera_distance
 	_spring_arm.add_excluded_object(get_rid())
 	health.damaged.connect(_on_damaged)
@@ -112,11 +122,14 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _physics_process(delta: float) -> void:
 	_state_time += delta
-	_shot_timer = maxf(_shot_timer - delta, 0.0)
+	for i in _weapon_cooldowns.size():
+		_weapon_cooldowns[i] = maxf(_weapon_cooldowns[i] - delta, 0.0)
 	_hurt_timer = maxf(_hurt_timer - delta, 0.0)
 	_oneshot_time = maxf(_oneshot_time - delta, 0.0)
 	health.invulnerable = state == State.DODGE or _hurt_timer > 0.0
 	_aiming = state != State.DEAD and Input.is_action_pressed("aim")
+	if _drawing and (not _aiming or state != State.MOVE):
+		_drawing = false # Lowering the bow cancels the draw.
 
 	if state != State.DEAD:
 		_read_actions()
@@ -137,6 +150,9 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 	_update_stamina(delta)
+	_update_mana(delta)
+	if _drawing:
+		_draw_time += delta
 	_update_camera(delta)
 
 
@@ -144,6 +160,18 @@ func _physics_process(delta: float) -> void:
 
 func is_aiming() -> bool:
 	return _aiming
+
+
+func current_weapon() -> RangedWeapon:
+	return weapons[weapon_index] if not weapons.is_empty() else null
+
+
+## How far the current bow is drawn, 0 to 1. Always 0 when not drawing.
+func draw_amount() -> float:
+	var weapon := current_weapon()
+	if not _drawing or weapon == null or weapon.charge_time <= 0.0:
+		return 0.0
+	return clampf(_draw_time / weapon.charge_time, 0.0, 1.0)
 
 
 func is_evading() -> bool:
@@ -167,13 +195,17 @@ func _read_actions() -> void:
 		_try_jump()
 	if Input.is_action_just_pressed("dodge"):
 		_try_dodge()
+	if Input.is_action_just_pressed("switch_weapon"):
+		_switch_weapon()
 	if Input.is_action_just_pressed("attack"):
 		if _aiming:
-			_try_shoot()
+			_press_ranged()
 		else:
 			_try_attack()
-	elif _aiming and Input.is_action_pressed("attack"):
-		_try_shoot() # Hold to keep firing.
+	elif _drawing and not Input.is_action_pressed("attack"):
+		var charge := draw_amount()
+		_drawing = false
+		_fire(charge)
 
 
 func _move_input() -> Vector3:
@@ -298,14 +330,54 @@ func _start_attack(index: int) -> void:
 		_swing_placeholder_weapon(index)
 
 
-func _try_shoot() -> void:
-	if _shot_timer > 0.0 or projectile_scene == null or state != State.MOVE:
+func _switch_weapon() -> void:
+	if weapons.size() < 2:
 		return
-	_shot_timer = shot_cooldown
-	var from := _muzzle.global_position
-	var shot := projectile_scene.instantiate() as Projectile
+	_drawing = false
+	weapon_index = (weapon_index + 1) % weapons.size()
+	weapon_changed.emit(current_weapon())
+
+
+## Bows start drawing on press and fire on release; everything else fires on press.
+func _press_ranged() -> void:
+	var weapon := current_weapon()
+	if weapon == null or _weapon_cooldowns[weapon_index] > 0.0 or state != State.MOVE:
+		return
+	if weapon.charge_time > 0.0:
+		_drawing = true
+		_draw_time = 0.0
+	else:
+		_fire(1.0)
+
+
+func _fire(charge: float) -> void:
+	var weapon := current_weapon()
+	if weapon == null or weapon.projectile_scene == null or _weapon_cooldowns[weapon_index] > 0.0 \
+			or state != State.MOVE:
+		return
+	if mana < weapon.mana_cost:
+		return
+	if weapon.mana_cost > 0.0:
+		mana -= weapon.mana_cost
+		mana_changed.emit(mana, max_mana)
+	_weapon_cooldowns[weapon_index] = weapon.cooldown
+
+	var power := weapon.charge_scale(charge)
+	var shot := weapon.projectile_scene.instantiate() as Projectile
+	shot.speed = weapon.projectile_speed * power
+	shot.gravity_scale = weapon.gravity_scale
+	shot.homing_strength = weapon.homing_strength
+	shot.color = weapon.color
+	if weapon.homing_strength > 0.0 and _has_lock_target():
+		shot.homing_target = lock_target
 	get_tree().current_scene.add_child(shot)
-	shot.launch(from, _aim_point() - from, self, &"enemy", shot_damage)
+
+	var from := _muzzle.global_position
+	var target := _aim_point()
+	# Aim a little high to make up for the drop of arcing shots.
+	var flight_time := from.distance_to(target) / maxf(shot.speed, 0.1)
+	target.y += 0.5 * _gravity * weapon.gravity_scale * flight_time * flight_time
+	shot.launch(from, target - from, self, &"enemy", weapon.damage * power)
 	_play_oneshot("Shoot")
 
 
@@ -418,6 +490,12 @@ func _update_stamina(delta: float) -> void:
 	elif stamina < max_stamina:
 		stamina = minf(stamina + stamina_regen * delta, max_stamina)
 		stamina_changed.emit(stamina, max_stamina)
+
+
+func _update_mana(delta: float) -> void:
+	if mana < max_mana:
+		mana = minf(mana + mana_regen * delta, max_mana)
+		mana_changed.emit(mana, max_mana)
 
 
 func _play(anim_name: StringName) -> void:
