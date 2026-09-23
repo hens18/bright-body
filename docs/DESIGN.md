@@ -122,9 +122,9 @@ Realistic, replacing the earlier stylized plan.
 - **Materials**: physically based (PBR) textures on everything: base color, normal, roughness and ambient
   occlusion maps. Environment materials live in `game/resources/materials/` and use world space triplanar
   mapping, so level geometry needs no UV unwrapping.
-- **Textures**: `tools/textures/generate_textures.py` makes seamless stand ins (castle wall, flagstone, cut
-  stone, old wood, dark iron). Photo scanned CC0 sets (Poly Haven, ambientCG) can replace any of them by
-  dropping files with the same names into `game/assets/textures/<set>/`.
+- **Textures**: photo scanned CC0 textures from Poly Haven, downloaded by `tools/textures/fetch_polyhaven.py`
+  and listed in `game/assets/textures/SOURCES.md`, shown at their real world scale. Swapping a texture is a
+  one line change in that script. `tools/textures/generate_textures.py` remains as an offline fallback.
 - **Lighting**: low warm sun with soft shadows, neutral ambient fill, screen space ambient occlusion and
   indirect light, volumetric fog for depth, ACES tone mapping. Candles and shrines as warm local lights.
 - **Architecture**: gothic castle and cathedral: tall stone walls with battlements, columns with bases and

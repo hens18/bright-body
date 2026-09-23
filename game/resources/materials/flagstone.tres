@@ -1,9 +1,9 @@
 [gd_resource type="StandardMaterial3D" load_steps=5 format=3]
 
-[ext_resource type="Texture2D" path="res://assets/textures/flagstone/albedo.png" id="1_albedo"]
-[ext_resource type="Texture2D" path="res://assets/textures/flagstone/normal.png" id="2_normal"]
-[ext_resource type="Texture2D" path="res://assets/textures/flagstone/roughness.png" id="3_roughness"]
-[ext_resource type="Texture2D" path="res://assets/textures/flagstone/ao.png" id="4_ao"]
+[ext_resource type="Texture2D" path="res://assets/textures/flagstone/albedo.jpg" id="1_albedo"]
+[ext_resource type="Texture2D" path="res://assets/textures/flagstone/normal.jpg" id="2_normal"]
+[ext_resource type="Texture2D" path="res://assets/textures/flagstone/roughness.jpg" id="3_roughness"]
+[ext_resource type="Texture2D" path="res://assets/textures/flagstone/ao.jpg" id="4_ao"]
 
 [resource]
 resource_name = "flagstone"
@@ -16,7 +16,7 @@ normal_texture = ExtResource("2_normal")
 ao_enabled = true
 ao_light_affect = 0.3
 ao_texture = ExtResource("4_ao")
-uv1_scale = Vector3(0.25, 0.25, 0.25)
+uv1_scale = Vector3(0.555556, 0.555556, 0.555556)
 uv1_triplanar = true
 uv1_triplanar_sharpness = 4.0
 uv1_world_triplanar = true

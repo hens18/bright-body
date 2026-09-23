@@ -3,19 +3,19 @@
 Every texture is built from periodic noise, so it tiles with no seams. Each set is
 written to game/assets/textures/<name>/ as:
 
-    albedo.png      base color (sRGB)
-    normal.png      tangent space normal map, OpenGL convention (what Godot expects)
-    roughness.png   grayscale, white = rough
-    ao.png          ambient occlusion from the height field
+    albedo.jpg      base color (sRGB)
+    normal.jpg      tangent space normal map, OpenGL convention (what Godot expects)
+    roughness.jpg   grayscale, white = rough
+    ao.jpg          ambient occlusion from the height field
 
 Usage, from the repo root (needs numpy and pillow):
 
     python tools/textures/generate_textures.py            # all sets
     python tools/textures/generate_textures.py castle_wall # one set
 
-These are stand ins made without any downloads. Photo scanned CC0 textures (for
-example from Poly Haven or ambientCG) can replace any set by dropping files with the
-same names into its folder.
+These are offline stand ins. The game currently uses photo scanned CC0 textures
+from Poly Haven (see fetch_polyhaven.py and game/assets/textures/SOURCES.md);
+running this script overwrites them with generated versions.
 """
 
 import pathlib
@@ -126,10 +126,10 @@ def save(name: str, albedo: np.ndarray, height: np.ndarray, roughness: np.ndarra
     folder.mkdir(parents=True, exist_ok=True)
     ao = ao_from_height(height, strength=ao_strength)
     to8 = lambda a: (np.clip(a, 0, 1) * 255 + 0.5).astype(np.uint8)
-    Image.fromarray(to8(albedo)).save(folder / "albedo.png")
-    Image.fromarray(to8(normal_from_height(height, normal_strength))).save(folder / "normal.png")
-    Image.fromarray(to8(roughness)).save(folder / "roughness.png")
-    Image.fromarray(to8(ao)).save(folder / "ao.png")
+    Image.fromarray(to8(albedo)).save(folder / "albedo.jpg", quality=92)
+    Image.fromarray(to8(normal_from_height(height, normal_strength))).save(folder / "normal.jpg", quality=95)
+    Image.fromarray(to8(roughness)).save(folder / "roughness.jpg", quality=92)
+    Image.fromarray(to8(ao)).save(folder / "ao.jpg", quality=92)
     print(f"wrote {folder.relative_to(REPO_ROOT)}")
 
 

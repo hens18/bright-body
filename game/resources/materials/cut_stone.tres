@@ -1,9 +1,9 @@
 [gd_resource type="StandardMaterial3D" load_steps=5 format=3]
 
-[ext_resource type="Texture2D" path="res://assets/textures/cut_stone/albedo.png" id="1_albedo"]
-[ext_resource type="Texture2D" path="res://assets/textures/cut_stone/normal.png" id="2_normal"]
-[ext_resource type="Texture2D" path="res://assets/textures/cut_stone/roughness.png" id="3_roughness"]
-[ext_resource type="Texture2D" path="res://assets/textures/cut_stone/ao.png" id="4_ao"]
+[ext_resource type="Texture2D" path="res://assets/textures/cut_stone/albedo.jpg" id="1_albedo"]
+[ext_resource type="Texture2D" path="res://assets/textures/cut_stone/normal.jpg" id="2_normal"]
+[ext_resource type="Texture2D" path="res://assets/textures/cut_stone/roughness.jpg" id="3_roughness"]
+[ext_resource type="Texture2D" path="res://assets/textures/cut_stone/ao.jpg" id="4_ao"]
 
 [resource]
 resource_name = "cut_stone"
