@@ -93,16 +93,17 @@ var _draw_time := 0.0
 @onready var _cam_pivot: Node3D = $CameraPivot
 @onready var _spring_arm: SpringArm3D = $CameraPivot/SpringArm3D
 @onready var camera: Camera3D = $CameraPivot/SpringArm3D/Camera3D
+# Looked up by path (not the GameState name) so the script also compiles in headless test runners.
+@onready var _game_state: Node = get_node_or_null(^"/root/GameState")
 @onready var _anim: AnimationPlayer = visual.find_child("AnimationPlayer", true, false) as AnimationPlayer
 
 
 func _ready() -> void:
 	stamina = max_stamina
 	mana = max_mana
-	# Looked up by path (not the GameState name) so the script also compiles in headless test runners.
-	var game_state := get_node_or_null(^"/root/GameState")
-	if game_state:
-		game_state.appearance.apply(visual.get_node_or_null(^"Hero"))
+	if _game_state:
+		_game_state.equipment_changed.connect(_refresh_gear)
+	_refresh_gear()
 	_weapon_cooldowns.resize(weapons.size())
 	_weapon_cooldowns.fill(0.0)
 	_spring_arm.spring_length = camera_distance
@@ -177,6 +178,12 @@ func draw_amount() -> float:
 	if not _drawing or weapon == null or weapon.charge_time <= 0.0:
 		return 0.0
 	return clampf(_draw_time / weapon.charge_time, 0.0, 1.0)
+
+
+## Damage taken is scaled by 100 / (100 + defense): 50 defense takes a third less.
+func defense_multiplier() -> float:
+	var defense: float = _game_state.total_defense() if _game_state else 0.0
+	return 100.0 / (100.0 + defense)
 
 
 func is_evading() -> bool:
@@ -495,6 +502,12 @@ func _update_stamina(delta: float) -> void:
 	elif stamina < max_stamina:
 		stamina = minf(stamina + stamina_regen * delta, max_stamina)
 		stamina_changed.emit(stamina, max_stamina)
+
+
+func _refresh_gear() -> void:
+	health.damage_multiplier = defense_multiplier()
+	if _game_state:
+		HeroModel.apply(visual.get_node_or_null(^"Hero"), _game_state.appearance, _game_state.equipped_items())
 
 
 func _update_mana(delta: float) -> void:

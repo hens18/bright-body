@@ -13,26 +13,49 @@ func _initialize() -> void:
 func _run() -> void:
 	# Title screen: naming the hero stores the name and starts the game.
 	var game_state := root.get_node("GameState") # Autoload names are not visible to --script runners.
-	# Restored at the end so the test leaves the player's profile alone.
-	var saved_name: String = game_state.hero_name
-	var saved_appearance: HeroAppearance = game_state.appearance
+	# The profile is restored at the end so the test leaves the player's save alone.
+	var saved_profile := FileAccess.get_file_as_bytes(game_state.SAVE_PATH)
 	change_scene_to_file("res://scenes/ui/title_screen.tscn")
 	await _frames(3)
 	var name_edit: LineEdit = current_scene.get_node("%NameEdit")
 	name_edit.text = "  Sir Testalot  "
 	name_edit.text_changed.emit(name_edit.text)
-	var crimson := HeroAppearance.ARMOR_COLORS[1]
-	(current_scene.get_node("%ArmorSwatches").get_child(1) as Button).pressed.emit()
+	var dark_skin := HeroAppearance.SKIN_TONES[4]
+	(current_scene.get_node("%SkinSwatches").get_child(4) as Button).pressed.emit()
+	(current_scene.get_node("%Hairstyle") as OptionButton).item_selected.emit(HeroAppearance.Hairstyle.LONG)
 	(current_scene.get_node("%HeightSlider") as HSlider).value = 1.08
 	current_scene.get_node("%BeginButton").pressed.emit()
 	await _frames(5)
 	_check(game_state.hero_name == "Sir Testalot", "title screen stores the trimmed hero name")
 	_check(current_scene.scene_file_path == "res://scenes/levels/main.tscn", "Begin starts the level")
 	_check(current_scene.get_node("HUD/Bars/NameLabel").text == "Sir Testalot", "HUD shows the hero name")
-	_check(game_state.appearance.armor_color == crimson and is_equal_approx(game_state.appearance.height, 1.08),
-			"title screen stores the chosen look")
-	_check(_armor_color(current_scene.get_node("Player/Visual/Hero")) == crimson,
-			"hero model wears the chosen armor color")
+	_check(game_state.appearance.skin_tone == dark_skin and is_equal_approx(game_state.appearance.height, 1.08),
+			"title screen stores the chosen body")
+	var hero: Node = current_scene.get_node("Player/Visual/Hero")
+	_check(_material_color(hero, "Skin") == dark_skin, "hero model has the chosen skin tone")
+	_check(_part_visible(hero, "Hair_Long") and not _part_visible(hero, "Hair_Short"), "hero has the chosen hairstyle")
+	_check(game_state.total_defense() == 0.0 and not _part_visible(hero, "Armor_Chest"), "new game starts without armor")
+
+	# Loot chest: walk up, press interact, the armor is equipped and shown.
+	var chest: Node3D = current_scene.get_node("Chests/GauntletsChest")
+	var hero_body: Player = current_scene.get_node("Player")
+	hero_body.global_position = chest.global_position + Vector3(0, 0.1, 1.5)
+	await _frames(4)
+	_check(chest.get_node("Prompt").visible, "chest shows an open prompt nearby")
+	await _tap("interact")
+	_check(chest.is_open and game_state.total_defense() > 0.0, "interact opens the chest and grants armor")
+	_check(_part_visible(hero, "Armor_Gauntlets"), "equipped gauntlets appear on the hero")
+	_check(hero_body.health.damage_multiplier < 1.0, "armor reduces damage taken")
+	current_scene.get_node("Chests/HelmChest").open()
+	await _frames(1)
+	_check(_part_visible(hero, "Armor_Helmet") and not _part_visible(hero, "Hair_Long"), "a helmet hides the hair")
+
+	# Opened chests stay opened after a reload.
+	reload_current_scene()
+	await _frames(5)
+	_check(current_scene.get_node("Chests/GauntletsChest").is_open, "opened chests stay open after reloading")
+	_check(not current_scene.get_node("Chests/CuirassChest").is_open, "unopened chests stay closed")
+	game_state.new_game()
 
 	change_scene_to_file("res://scenes/levels/main.tscn")
 	await _frames(5)
@@ -122,9 +145,10 @@ func _run() -> void:
 	await _seconds(0.6)
 	_check(level.get_node("Enemies").get_child_count() == 0, "defeated enemies are removed")
 
-	game_state.hero_name = saved_name
-	game_state.appearance = saved_appearance
-	game_state.save_profile()
+	if saved_profile.is_empty():
+		DirAccess.remove_absolute(game_state.SAVE_PATH)
+	else:
+		FileAccess.open(game_state.SAVE_PATH, FileAccess.WRITE).store_buffer(saved_profile)
 
 	for failure in _failures:
 		printerr("FAIL: ", failure)
@@ -132,13 +156,18 @@ func _run() -> void:
 	quit(0 if _failures.is_empty() else 1)
 
 
-func _armor_color(model: Node) -> Color:
-	var mesh: MeshInstance3D = model.find_children("*", "MeshInstance3D", true, false)[0]
-	for surface in mesh.mesh.get_surface_count():
-		var material := mesh.get_surface_override_material(surface) as BaseMaterial3D
-		if material and material.resource_name == "Body":
-			return material.albedo_color
+func _material_color(model: Node, material_name: String) -> Color:
+	for mesh: MeshInstance3D in model.find_children("*", "MeshInstance3D", true, false):
+		for surface in mesh.mesh.get_surface_count():
+			var material := mesh.get_surface_override_material(surface) as BaseMaterial3D
+			if material and material.resource_name == material_name:
+				return material.albedo_color
 	return Color.TRANSPARENT
+
+
+func _part_visible(model: Node, part: String) -> bool:
+	var mesh := model.find_child(part, true, false) as MeshInstance3D
+	return mesh != null and mesh.visible
 
 
 func _count_shots(level: Node) -> int:

@@ -12,6 +12,8 @@ var current: float
 ## While true, take_damage() is ignored (dodge frames, post hit grace, cutscenes).
 var invulnerable := false
 var is_dead := false
+## Scales incoming damage, e.g. below 1 while wearing armor.
+var damage_multiplier := 1.0
 
 
 func _ready() -> void:
@@ -22,6 +24,7 @@ func _ready() -> void:
 func take_damage(amount: float, source: Node = null) -> bool:
 	if is_dead or invulnerable or amount <= 0.0:
 		return false
+	amount *= damage_multiplier
 	current = maxf(current - amount, 0.0)
 	damaged.emit(amount, source)
 	changed.emit(current, max_health)

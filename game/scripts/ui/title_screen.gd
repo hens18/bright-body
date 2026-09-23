@@ -1,6 +1,6 @@
 extends Control
-## Title screen and character creation: the player names their hero, picks armor
-## and trim colors, height and build, then the adventure begins.
+## Title screen and character creation: the player names their hero and shapes
+## their body (skin, hair, height, build). Armor is found later in loot chests.
 
 const FIRST_LEVEL := "res://scenes/levels/main.tscn"
 const SWATCH_SIZE := Vector2(34, 34)
@@ -9,8 +9,9 @@ var _appearance: HeroAppearance
 
 @onready var _name_edit: LineEdit = %NameEdit
 @onready var _begin_button: Button = %BeginButton
-@onready var _armor_swatches: GridContainer = %ArmorSwatches
-@onready var _trim_swatches: GridContainer = %TrimSwatches
+@onready var _skin_swatches: GridContainer = %SkinSwatches
+@onready var _hair_swatches: GridContainer = %HairSwatches
+@onready var _hairstyle: OptionButton = %Hairstyle
 @onready var _height_slider: HSlider = %HeightSlider
 @onready var _build_slider: HSlider = %BuildSlider
 @onready var _preview_hero: Node3D = %PreviewHero
@@ -27,8 +28,14 @@ func _ready() -> void:
 	_begin_button.pressed.connect(_begin)
 	_on_name_changed(_name_edit.text)
 
-	_build_swatches(_armor_swatches, HeroAppearance.ARMOR_COLORS, "armor_color")
-	_build_swatches(_trim_swatches, HeroAppearance.TRIM_COLORS, "trim_color")
+	_build_swatches(_skin_swatches, HeroAppearance.SKIN_TONES, "skin_tone")
+	_build_swatches(_hair_swatches, HeroAppearance.HAIR_COLORS, "hair_color")
+	for style_name: String in HeroAppearance.HAIRSTYLE_NAMES:
+		_hairstyle.add_item(style_name)
+	_hairstyle.selected = _appearance.hairstyle
+	_hairstyle.item_selected.connect(func(index: int) -> void:
+		_appearance.hairstyle = index as HeroAppearance.Hairstyle
+		_refresh_preview())
 	_setup_slider(_height_slider, HeroAppearance.HEIGHT_RANGE, "height")
 	_setup_slider(_build_slider, HeroAppearance.BUILD_RANGE, "build")
 	_refresh_preview()
@@ -77,7 +84,7 @@ func _setup_slider(slider: HSlider, value_range: Vector2, property: StringName) 
 
 
 func _refresh_preview() -> void:
-	_appearance.apply(_preview_hero)
+	HeroModel.apply(_preview_hero, _appearance) # No armor: the hero starts unequipped.
 
 
 func _on_name_changed(text: String) -> void:
@@ -88,5 +95,6 @@ func _begin() -> void:
 	if _begin_button.disabled:
 		return
 	GameState.appearance = _appearance
-	GameState.set_hero_name(_name_edit.text) # Also saves the appearance.
+	GameState.set_hero_name(_name_edit.text)
+	GameState.new_game() # Fresh start: no armor, all chests closed. Saves the profile.
 	get_tree().change_scene_to_file(FIRST_LEVEL)

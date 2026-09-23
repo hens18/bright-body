@@ -25,8 +25,12 @@ You can also export by hand with *File > Export > glTF 2.0*, format **glTF Binar
   facing +Z, so the player scene rotates the model 180 degrees under `Player/Visual`.
 - **Origin**: at the feet, centered.
 - **Apply transforms** (Ctrl+A > All Transforms) before exporting.
-- **Materials**: name the armor material `Body` and the trim material `Accent`. The game recolors those two
-  with the player's chosen colors, so keep them light and neutral enough to tint well.
+- **Materials**: name the skin material `Skin` and the hair material `Hair`. The game recolors those two with
+  the player's chosen colors.
+- **Parts**: the hero is several meshes skinned to one armature, which the game shows or hides by name:
+  `Body` (always shown), `Hair_Short` / `Hair_Long` (by hairstyle), and one mesh per armor piece
+  (`Armor_Helmet`, `Armor_Chest`, `Armor_Gauntlets`, `Armor_Greaves`). An armor item's `model_part` names
+  the mesh it shows, so new armor sets are new meshes plus a new item file.
 - **Animations**: one action per move, named exactly as the game expects. Every action is exported.
 
 | Action name | Used for |
@@ -54,7 +58,7 @@ This lets whole level chunks be modeled in Blender and dropped into a Godot scen
 
 - `scripts/export_glb.py`: exports the open file to `.glb` (see above).
 - `scripts/build_placeholder_hero.py`: generates `source/hero_placeholder.blend` and its `.glb`, a blocky
-  rigged hero with every animation above. Run with `blender -b -P blender/scripts/build_placeholder_hero.py`.
+  rigged hero with every animation above, hair styles and an iron armor set. Run with `blender -b -P blender/scripts/build_placeholder_hero.py`.
   Use it as a reference for bone names and action timing when building the real hero.
 
 ## Swapping in a new hero

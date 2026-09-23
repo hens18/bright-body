@@ -1,10 +1,15 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=21 format=3]
 
 [ext_resource type="Script" path="res://scripts/levels/level.gd" id="1_level"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/enemy.tscn" id="3_enemy"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/enemy_ranged.tscn" id="4_ranged"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="5_hud"]
+[ext_resource type="PackedScene" path="res://scenes/world/loot_chest.tscn" id="6_chest"]
+[ext_resource type="Resource" path="res://resources/items/iron_helm.tres" id="7_helm"]
+[ext_resource type="Resource" path="res://resources/items/iron_cuirass.tres" id="8_cuirass"]
+[ext_resource type="Resource" path="res://resources/items/iron_gauntlets.tres" id="9_gauntlets"]
+[ext_resource type="Resource" path="res://resources/items/iron_greaves.tres" id="10_greaves"]
 
 [sub_resource type="ProceduralSkyMaterial" id="Sky_mat"]
 sky_top_color = Color(0.28, 0.45, 0.75, 1)
@@ -178,5 +183,27 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 2, -13)
 
 [node name="Caster2" parent="Enemies" instance=ExtResource("4_ranged")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, -22)
+
+[node name="Chests" type="Node3D" parent="."]
+
+[node name="GauntletsChest" parent="Chests" instance=ExtResource("6_chest")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 17)
+chest_id = "arena_gauntlets"
+loot = ExtResource("9_gauntlets")
+
+[node name="HelmChest" parent="Chests" instance=ExtResource("6_chest")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 3, 26)
+chest_id = "arena_helm"
+loot = ExtResource("7_helm")
+
+[node name="CuirassChest" parent="Chests" instance=ExtResource("6_chest")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 20, 2, -15)
+chest_id = "arena_cuirass"
+loot = ExtResource("8_cuirass")
+
+[node name="GreavesChest" parent="Chests" instance=ExtResource("6_chest")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -8, 0, -16)
+chest_id = "arena_greaves"
+loot = ExtResource("10_greaves")
 
 [node name="HUD" parent="." instance=ExtResource("5_hud")]

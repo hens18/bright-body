@@ -11,7 +11,9 @@ are open to change. Things still to settle go in **Open questions**.
 | Tools | Blender for art and animation, Godot 4 (GDScript) for the game |
 | Team | Solo developer |
 | Length | About 4 hours for a first playthrough |
-| Hero | An unnamed avatar. The player names them and customizes their look (armor and trim colors, height, build). |
+| Hero | An unnamed avatar. The player names them and customizes their body only: skin tone, hair color, hairstyle, height and build. |
+| Starting gear | The hero starts with no armor. All armor is found in loot chests. |
+| Story | None for now |
 | Camera | Third person, over the shoulder, with lock on |
 | Melee | Three hit combo, stamina cost, dodge roll with invulnerability frames |
 | Ranged | Only bows, crossbows and magic |
@@ -22,6 +24,7 @@ are open to change. Things still to settle go in **Open questions**.
 | Platform | PC only (keyboard/mouse first, gamepad supported) |
 | Title | "Bright Body" is a working title only, with no story meaning |
 | Skill tree | The three branch proposal below is approved |
+| Bosses | The three boss proposal below is approved |
 
 ### Ranged weapons (built)
 
@@ -64,7 +67,7 @@ center holds the final fight.
 | Travel, shopping, skill tree | 10 min |
 | **Total** | **about 4 h** |
 
-## Proposal: three bosses
+## Three bosses (approved)
 
 Each boss teaches one lesson the next one builds on.
 
@@ -99,13 +102,14 @@ random loot, since every item is handplaced. That keeps balancing manageable for
 
 1. **Combat prototype** (done): greybox arena, hero, two enemy types, HUD, smoke test.
 2. **Naming and ranged weapons** (done): title screen, longbow, crossbow, magic, mana.
-3. **Hero customization** (done): armor and trim colors, height and build, with a live 3D preview.
-4. **Boss 1, The Warden**: boss framework (phases, health bar, arena), first boss fight.
-5. **Skill tree and gear**: data driven skills, skill tree menu, equipment, save and load.
-6. **Region 1 greybox**: open world streaming, hub, shrines, chests, enemy camps.
-7. **Art pass on Region 1**: gothic kit in Blender (walls, arches, windows, props), lighting.
-8. **Bosses 2 and 3, Regions 2 and 3.**
-9. **Polish**: audio, menus, balancing, performance.
+3. **Hero customization** (done): skin, hair color and style, height and build, with a live 3D preview.
+4. **Armor from loot chests** (done): four iron pieces, defense, chests that stay opened, saved equipment.
+5. **Boss 1, The Warden**: boss framework (phases, health bar, arena), first boss fight.
+6. **Skill tree and inventory**: data driven skills, skill tree menu, inventory and equipment screen.
+7. **Region 1 greybox**: open world streaming, hub, shrines, chests, enemy camps.
+8. **Art pass on Region 1**: gothic kit in Blender (walls, arches, windows, props), lighting.
+9. **Bosses 2 and 3, Regions 2 and 3.**
+10. **Polish**: audio, menus, balancing, performance.
 
 ## Art direction
 
@@ -119,15 +123,27 @@ random loot, since every item is handplaced. That keeps balancing manageable for
 
 ## Hero customization (built)
 
-Players choose armor color, trim color, height and build on the title screen. Choices are saved with the
-name and applied to any hero model whose Blender materials are named `Body` (armor) and `Accent` (trim).
-Planned additions once the real hero is modeled: helmet and hairstyle options, face and skin tone, and gear
-that visibly changes the silhouette.
+Customization is bodily only: skin tone, hair color, hairstyle (bald, short, long), height and build, chosen on
+the title screen with a live preview. Choices are saved with the name. Face shapes and more hairstyles can come
+once the real hero model exists.
+
+## Armor and loot chests (built)
+
+- The hero starts in a plain tunic. Armor comes from loot chests, one piece per slot: head, chest, hands, legs.
+- Each piece adds defense. Damage taken is scaled by 100 / (100 + defense), so 50 defense takes a third less
+  damage. This formula never reaches zero, so armor always helps without making the hero invincible.
+- Picking up a piece equips it straight away if it is at least as good as what is worn. Once there is an
+  inventory screen (skill tree milestone), players will also be able to swap pieces by hand.
+- Armor shows on the hero: each piece is its own mesh in the Blender model, and helmets hide the hair.
+- Opened chests are remembered in the save, so they stay empty. Starting a new game from the title screen
+  clears armor and closes every chest.
+- The arena has the four iron pieces (38 defense total). Later sets (steel, then boss rewards) raise defense
+  along with the rising boss difficulty.
 
 ## Open questions
 
-1. **Bosses**: do The Warden and The Hollow Choir fit your vision, and do you have a theme or name for the
-   final boss?
-2. **Story**: any premise yet? Why is the hero traveling, and what ties the three bosses together?
-3. **Customization depth**: beyond colors and body shape, which options matter most (helmets, hair, faces,
-   voice, body type)?
+1. **Armor tiers**: how many sets across the game? My suggestion: iron (Region 1), steel (Region 2), then a
+   unique set from each boss, about 5 sets in total.
+2. **Weapon loot**: should better swords, bows and crossbows also come from chests, or only armor?
+3. **Death**: when the hero dies, restart at the last checkpoint with no penalty, or drop something (souls
+   style) that can be recovered?

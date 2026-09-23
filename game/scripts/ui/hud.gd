@@ -1,6 +1,6 @@
 extends CanvasLayer
-## Hero name, health, stamina and mana bars, current weapon, bow draw meter,
-## crosshair, lock on marker and center screen messages.
+## Hero name, health, stamina and mana bars, defense, current weapon, bow draw
+## meter, crosshair, lock on marker, loot pop ups and center screen messages.
 
 var player: Player:
 	set = set_player
@@ -11,6 +11,15 @@ var player: Player:
 @onready var _name_label: Label = %NameLabel
 @onready var _weapon_label: Label = %WeaponLabel
 @onready var _draw_bar: ProgressBar = %DrawBar
+@onready var _defense_label: Label = %DefenseLabel
+@onready var _toast: Label = %Toast
+var _toast_tween: Tween
+
+
+func _ready() -> void:
+	GameState.item_obtained.connect(_on_item_obtained)
+	GameState.equipment_changed.connect(_update_defense)
+	_update_defense()
 @onready var _enemy_label: Label = %EnemyLabel
 @onready var _message: Label = %Message
 @onready var _crosshair: Control = %Crosshair
@@ -74,6 +83,21 @@ func _on_mana_changed(current: float, maximum: float) -> void:
 
 func _on_weapon_changed(weapon: RangedWeapon) -> void:
 	_weapon_label.text = weapon.display_name if weapon else ""
+
+
+func _update_defense() -> void:
+	_defense_label.text = "Defense %d" % GameState.total_defense()
+
+
+func _on_item_obtained(item: ArmorItem) -> void:
+	_toast.text = "Found %s  (+%d defense)" % [item.display_name, item.defense]
+	_toast.visible = true
+	_toast.modulate.a = 1.0
+	if _toast_tween:
+		_toast_tween.kill()
+	_toast_tween = create_tween()
+	_toast_tween.tween_interval(2.0)
+	_toast_tween.tween_property(_toast, "modulate:a", 0.0, 0.6)
 
 
 func _on_player_damaged(_amount: float, _source: Node) -> void:

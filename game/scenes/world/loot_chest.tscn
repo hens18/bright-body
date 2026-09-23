@@ -1,0 +1,81 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/loot_chest.gd" id="1_chest"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_wood"]
+albedo_color = Color(0.45, 0.28, 0.14, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="Mat_gold"]
+albedo_color = Color(0.9, 0.7, 0.3, 1)
+metallic = 0.8
+roughness = 0.35
+
+[sub_resource type="BoxMesh" id="BoxMesh_base"]
+material = SubResource("Mat_wood")
+size = Vector3(1, 0.55, 0.7)
+
+[sub_resource type="BoxMesh" id="BoxMesh_lid"]
+material = SubResource("Mat_wood")
+size = Vector3(1.04, 0.2, 0.74)
+
+[sub_resource type="BoxMesh" id="BoxMesh_band"]
+material = SubResource("Mat_gold")
+size = Vector3(0.08, 0.6, 0.74)
+
+[sub_resource type="BoxShape3D" id="BoxShape_chest"]
+size = Vector3(1.04, 0.75, 0.74)
+
+[sub_resource type="SphereShape3D" id="Sphere_zone"]
+radius = 2.0
+
+[node name="LootChest" type="Node3D"]
+script = ExtResource("1_chest")
+
+[node name="Body" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.375, 0)
+shape = SubResource("BoxShape_chest")
+
+[node name="Base" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.275, 0)
+mesh = SubResource("BoxMesh_base")
+
+[node name="BandLeft" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.3, 0)
+mesh = SubResource("BoxMesh_band")
+
+[node name="BandRight" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0.3, 0)
+mesh = SubResource("BoxMesh_band")
+
+[node name="LidPivot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0.37)
+
+[node name="Lid" type="MeshInstance3D" parent="LidPivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, -0.37)
+mesh = SubResource("BoxMesh_lid")
+
+[node name="Glow" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+light_color = Color(1, 0.75, 0.35, 1)
+light_energy = 0.6
+omni_range = 2.5
+
+[node name="Prompt" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 0)
+billboard = 1
+no_depth_test = true
+font_size = 48
+outline_size = 12
+text = "[E] Open"
+
+[node name="InteractZone" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractZone"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("Sphere_zone")

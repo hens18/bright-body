@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ArmorItem" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/armor_item.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+display_name = "Iron Helm"
+slot = 0
+defense = 8.0
+model_part = "Armor_Helmet"
+hides_hair = true
