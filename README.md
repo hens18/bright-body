@@ -1,9 +1,10 @@
 # Bright Body
 
-A medieval 3D action adventure game with an open world, a skill tree and three boss fights.
+A stylized gothic medieval 3D action adventure for PC, with an open world, a skill tree and three boss fights.
+"Bright Body" is a working title.
 Art and animation are made in **Blender**, and the game runs in **Godot 4**.
 
-The game is currently a **playable combat prototype**: a title screen where you name your hero, a greybox
+The game is currently a **playable combat prototype**: a title screen where you name and customize your hero, a greybox
 arena, melee combat, three ranged weapons (longbow, crossbow, magic) and two enemy types.
 
 ## Getting started
@@ -11,7 +12,7 @@ arena, melee combat, three ranged weapons (longbow, crossbow, magic) and two ene
 1. Install [Godot 4.4+](https://godotengine.org/download) (the standard build, no .NET needed).
 2. Install [Blender 4.2+](https://www.blender.org/download/) if you want to edit or create art.
 3. In Godot, choose **Import**, pick `game/project.godot`, then press **F5** to play. The title screen asks
-   for your hero's name, which is saved for next time.
+   for your hero's name and look, which are saved for next time.
 
 ## Controls
 
@@ -38,7 +39,8 @@ arena, melee combat, three ranged weapons (longbow, crossbow, magic) and two ene
 - **Ranged weapons** (`game/resources/weapons/`): a longbow you draw (arcing arrows), a crossbow (instant,
   flat, slow reload) and an Arcane Bolt spell (homes in on your lock target, costs mana). Each is a data file,
   so new weapons need no code.
-- **Title screen and profile** (`game/scripts/autoload/game_state.gd`): the hero's name, saved to disk.
+- **Title screen and profile** (`game/scripts/autoload/game_state.gd`): the hero's name and look (armor and trim
+  colors, height, build, see `game/scripts/player/hero_appearance.gd`), saved to disk.
   This grows into the save system.
 - **Enemies** (`game/scripts/enemies/enemy.gd`): *Brutes* (red) close in and swing after a glowing windup.
   *Casters* (purple) keep their distance and throw slow, dodgeable projectiles. Hitting an enemy during its
@@ -73,7 +75,7 @@ with `blender/scripts/export_glb.py`, and Godot re-imports it on the next focus.
 ## Testing
 
 A headless smoke test loads the level, drives the player with simulated input and checks movement,
-naming the hero, melee, dodging, all three ranged weapons, lock on, enemy attacks and enemy death:
+naming and customizing the hero, melee, dodging, all three ranged weapons, lock on, enemy attacks and enemy death:
 
 ```
 godot --headless --path game --import

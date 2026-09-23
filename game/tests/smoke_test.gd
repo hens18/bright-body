@@ -13,17 +13,26 @@ func _initialize() -> void:
 func _run() -> void:
 	# Title screen: naming the hero stores the name and starts the game.
 	var game_state := root.get_node("GameState") # Autoload names are not visible to --script runners.
-	var saved_name: String = game_state.hero_name # Restored at the end so the test leaves the profile alone.
+	# Restored at the end so the test leaves the player's profile alone.
+	var saved_name: String = game_state.hero_name
+	var saved_appearance: HeroAppearance = game_state.appearance
 	change_scene_to_file("res://scenes/ui/title_screen.tscn")
 	await _frames(3)
 	var name_edit: LineEdit = current_scene.get_node("%NameEdit")
 	name_edit.text = "  Sir Testalot  "
 	name_edit.text_changed.emit(name_edit.text)
+	var crimson := HeroAppearance.ARMOR_COLORS[1]
+	(current_scene.get_node("%ArmorSwatches").get_child(1) as Button).pressed.emit()
+	(current_scene.get_node("%HeightSlider") as HSlider).value = 1.08
 	current_scene.get_node("%BeginButton").pressed.emit()
 	await _frames(5)
 	_check(game_state.hero_name == "Sir Testalot", "title screen stores the trimmed hero name")
 	_check(current_scene.scene_file_path == "res://scenes/levels/main.tscn", "Begin starts the level")
 	_check(current_scene.get_node("HUD/Bars/NameLabel").text == "Sir Testalot", "HUD shows the hero name")
+	_check(game_state.appearance.armor_color == crimson and is_equal_approx(game_state.appearance.height, 1.08),
+			"title screen stores the chosen look")
+	_check(_armor_color(current_scene.get_node("Player/Visual/Hero")) == crimson,
+			"hero model wears the chosen armor color")
 
 	change_scene_to_file("res://scenes/levels/main.tscn")
 	await _frames(5)
@@ -114,12 +123,22 @@ func _run() -> void:
 	_check(level.get_node("Enemies").get_child_count() == 0, "defeated enemies are removed")
 
 	game_state.hero_name = saved_name
+	game_state.appearance = saved_appearance
 	game_state.save_profile()
 
 	for failure in _failures:
 		printerr("FAIL: ", failure)
 	print("Smoke test: %s" % ("PASSED" if _failures.is_empty() else "FAILED"))
 	quit(0 if _failures.is_empty() else 1)
+
+
+func _armor_color(model: Node) -> Color:
+	var mesh: MeshInstance3D = model.find_children("*", "MeshInstance3D", true, false)[0]
+	for surface in mesh.mesh.get_surface_count():
+		var material := mesh.get_surface_override_material(surface) as BaseMaterial3D
+		if material and material.resource_name == "Body":
+			return material.albedo_color
+	return Color.TRANSPARENT
 
 
 func _count_shots(level: Node) -> int:

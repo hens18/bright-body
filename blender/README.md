@@ -25,6 +25,8 @@ You can also export by hand with *File > Export > glTF 2.0*, format **glTF Binar
   facing +Z, so the player scene rotates the model 180 degrees under `Player/Visual`.
 - **Origin**: at the feet, centered.
 - **Apply transforms** (Ctrl+A > All Transforms) before exporting.
+- **Materials**: name the armor material `Body` and the trim material `Accent`. The game recolors those two
+  with the player's chosen colors, so keep them light and neutral enough to tint well.
 - **Animations**: one action per move, named exactly as the game expects. Every action is exported.
 
 | Action name | Used for |
@@ -59,4 +61,5 @@ This lets whole level chunks be modeled in Blender and dropped into a Godot scen
 
 1. Export the new model to `game/assets/models/hero.glb`.
 2. Open `game/scenes/player/player.tscn`, delete `Visual/Hero`, and drag `hero.glb` under `Visual`.
+   Rename the new node to `Hero` so customization finds it.
 3. Rotate it 180 degrees on Y so it faces the same way as `Visual/Muzzle` (Godot's -Z).

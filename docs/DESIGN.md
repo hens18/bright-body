@@ -11,14 +11,17 @@ are open to change. Things still to settle go in **Open questions**.
 | Tools | Blender for art and animation, Godot 4 (GDScript) for the game |
 | Team | Solo developer |
 | Length | About 4 hours for a first playthrough |
-| Hero | An unnamed avatar. The player names them on the title screen. |
+| Hero | An unnamed avatar. The player names them and customizes their look (armor and trim colors, height, build). |
 | Camera | Third person, over the shoulder, with lock on |
 | Melee | Three hit combo, stamina cost, dodge roll with invulnerability frames |
 | Ranged | Only bows, crossbows and magic |
 | World | Open world |
 | Progression | Skill tree that unlocks new abilities, plus gear |
 | Bosses | Three boss fights, each harder than the last |
-| Art style | "Cathedral": gothic architecture, stone, stained glass, candlelight (see open questions) |
+| Art style | Stylized gothic: stone arches, stained glass, candlelight. Chunky shapes and painted colors rather than realism. |
+| Platform | PC only (keyboard/mouse first, gamepad supported) |
+| Title | "Bright Body" is a working title only, with no story meaning |
+| Skill tree | The three branch proposal below is approved |
 
 ### Ranged weapons (built)
 
@@ -69,13 +72,13 @@ Each boss teaches one lesson the next one builds on.
    punishing. One phase.
 2. **The Hollow Choir** (Region 2). A floating caster with summoned adds. Teaches ranged combat, target
    switching with lock on, and managing mana. Two phases.
-3. **The Bright Body** (the Cathedral). The final boss, fast and mixing melee with magic. Tests everything
+3. **Final boss** (the Cathedral, name to be decided). The final boss, fast and mixing melee with magic. Tests everything
    the player has learned. Three phases, with arena changes between them.
 
 Difficulty increases through more health and damage, but mostly through shorter windups, longer combos,
 more phases and new attack types.
 
-## Proposal: skill tree and gear
+## Skill tree and gear (approved)
 
 Three branches, one per play style. Skill points come from bosses (3 each) and from shrines hidden in the
 world (about 12), so about 21 points total. That is enough to finish one branch and dip into the others.
@@ -96,6 +99,7 @@ random loot, since every item is handplaced. That keeps balancing manageable for
 
 1. **Combat prototype** (done): greybox arena, hero, two enemy types, HUD, smoke test.
 2. **Naming and ranged weapons** (done): title screen, longbow, crossbow, magic, mana.
+2b. **Hero customization** (done): armor and trim colors, height and build, with a live 3D preview.
 3. **Boss 1, The Warden**: boss framework (phases, health bar, arena), first boss fight.
 4. **Skill tree and gear**: data driven skills, skill tree menu, equipment, save and load.
 5. **Region 1 greybox**: open world streaming, hub, shrines, chests, enemy camps.
@@ -103,14 +107,27 @@ random loot, since every item is handplaced. That keeps balancing manageable for
 7. **Bosses 2 and 3, Regions 2 and 3.**
 8. **Polish**: audio, menus, balancing, performance.
 
+## Art direction
+
+- **Stylized gothic**: exaggerated proportions (tall pointed arches, thick buttresses, chunky stonework),
+  flat or lightly painted textures, strong color from stained glass and warm candlelight against cool stone.
+- **Palette**: cool grey and blue stone, warm gold and orange light, saturated jewel tones in glass.
+- **Lighting**: shafts of colored light through windows, candle clusters as local warm lights, fog for depth.
+- **Modular kit**: walls, arches, pillars, windows, stairs and floor tiles built on a 2 m grid in Blender, so
+  levels snap together in Godot. Collision via the `-col` / `-colonly` suffixes (see `blender/README.md`).
+- **Characters**: blocky, readable silhouettes that match the placeholder hero's proportions.
+
+## Hero customization (built)
+
+Players choose armor color, trim color, height and build on the title screen. Choices are saved with the
+name and applied to any hero model whose Blender materials are named `Body` (armor) and `Accent` (trim).
+Planned additions once the real hero is modeled: helmet and hairstyle options, face and skin tone, and gear
+that visibly changes the silhouette.
+
 ## Open questions
 
-1. **"Cathedral" art style**: I read this as a gothic medieval look (stone, arches, stained glass,
-   candlelight). Is that right, or did you mean something else, such as a specific game's look?
-2. **Realism**: realistic proportions and textures, or stylized (chunkier shapes, painted look)?
-   Stylized is much faster for a solo artist.
-3. **Story**: what is "Bright Body"? My placeholder makes it the final boss, a corrupted holy relic.
-4. **Platforms**: PC only, or also consoles or Steam Deck?
-5. **Hero appearance**: since the hero is an avatar, should players also pick a look (body, face, colors),
-   or just the name?
-6. **Bosses and skill tree**: do the proposals above fit your vision? What would you change?
+1. **Bosses**: do The Warden and The Hollow Choir fit your vision, and do you have a theme or name for the
+   final boss?
+2. **Story**: any premise yet? Why is the hero traveling, and what ties the three bosses together?
+3. **Customization depth**: beyond colors and body shape, which options matter most (helmets, hair, faces,
+   voice, body type)?

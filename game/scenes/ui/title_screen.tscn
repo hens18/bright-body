@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/title_screen.gd" id="1_title"]
+[ext_resource type="PackedScene" path="res://assets/models/hero_placeholder.glb" id="2_hero"]
 
 [sub_resource type="StyleBoxFlat" id="Style_panel"]
 bg_color = Color(0.08, 0.07, 0.1, 0.85)
@@ -9,10 +10,20 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.75, 0.6, 0.3, 1)
-content_margin_left = 40.0
-content_margin_top = 32.0
-content_margin_right = 40.0
-content_margin_bottom = 32.0
+content_margin_left = 32.0
+content_margin_top = 28.0
+content_margin_right = 32.0
+content_margin_bottom = 28.0
+
+[sub_resource type="Environment" id="Env_preview"]
+background_mode = 1
+background_color = Color(0.12, 0.1, 0.15, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.55, 0.5, 0.6, 1)
+ambient_light_energy = 0.6
+
+[sub_resource type="World3D" id="World_preview"]
+environment = SubResource("Env_preview")
 
 [node name="TitleScreen" type="Control"]
 layout_mode = 3
@@ -44,31 +55,99 @@ grow_vertical = 2
 layout_mode = 2
 theme_override_styles/panel = SubResource("Style_panel")
 
-[node name="VBox" type="VBoxContainer" parent="Center/Panel"]
-custom_minimum_size = Vector2(420, 0)
+[node name="HBox" type="HBoxContainer" parent="Center/Panel"]
 layout_mode = 2
-theme_override_constants/separation = 18
+theme_override_constants/separation = 32
 
-[node name="Title" type="Label" parent="Center/Panel/VBox"]
+[node name="Preview" type="SubViewportContainer" parent="Center/Panel/HBox"]
+custom_minimum_size = Vector2(360, 480)
+layout_mode = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="Center/Panel/HBox/Preview"]
+own_world_3d = true
+world_3d = SubResource("World_preview")
+handle_input_locally = false
+msaa_3d = 2
+size = Vector2i(360, 480)
+render_target_update_mode = 4
+
+[node name="Camera3D" type="Camera3D" parent="Center/Panel/HBox/Preview/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 0.984808, 0.173648, 0, -0.173648, 0.984808, 0, 1.45, 3.3)
+fov = 40.0
+
+[node name="Key" type="DirectionalLight3D" parent="Center/Panel/HBox/Preview/SubViewport"]
+transform = Transform3D(0.866025, -0.25, 0.433013, 0, 0.866025, 0.5, -0.5, -0.433013, 0.75, 0, 3, 0)
+light_color = Color(1, 0.88, 0.7, 1)
+light_energy = 1.3
+
+[node name="Candle" type="OmniLight3D" parent="Center/Panel/HBox/Preview/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, 1.2, 1)
+light_color = Color(1, 0.6, 0.3, 1)
+light_energy = 1.5
+omni_range = 4.0
+
+[node name="PreviewHero" parent="Center/Panel/HBox/Preview/SubViewport" instance=ExtResource("2_hero")]
+unique_name_in_owner = true
+
+[node name="Form" type="VBoxContainer" parent="Center/Panel/HBox"]
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="Center/Panel/HBox/Form"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.82, 0.5, 1)
-theme_override_font_sizes/font_size = 48
+theme_override_font_sizes/font_size = 44
 text = "Bright Body"
 horizontal_alignment = 1
 
-[node name="Prompt" type="Label" parent="Center/Panel/VBox"]
+[node name="NameLabel" type="Label" parent="Center/Panel/HBox/Form"]
 layout_mode = 2
 text = "What is your name, traveler?"
-horizontal_alignment = 1
 
-[node name="NameEdit" type="LineEdit" parent="Center/Panel/VBox"]
+[node name="NameEdit" type="LineEdit" parent="Center/Panel/HBox/Form"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 placeholder_text = "Enter a name"
-alignment = 1
 
-[node name="BeginButton" type="Button" parent="Center/Panel/VBox"]
+[node name="ArmorLabel" type="Label" parent="Center/Panel/HBox/Form"]
+layout_mode = 2
+text = "Armor"
+
+[node name="ArmorSwatches" type="GridContainer" parent="Center/Panel/HBox/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 8
+
+[node name="TrimLabel" type="Label" parent="Center/Panel/HBox/Form"]
+layout_mode = 2
+text = "Trim"
+
+[node name="TrimSwatches" type="GridContainer" parent="Center/Panel/HBox/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 8
+
+[node name="HeightLabel" type="Label" parent="Center/Panel/HBox/Form"]
+layout_mode = 2
+text = "Height"
+
+[node name="HeightSlider" type="HSlider" parent="Center/Panel/HBox/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="BuildLabel" type="Label" parent="Center/Panel/HBox/Form"]
+layout_mode = 2
+text = "Build"
+
+[node name="BuildSlider" type="HSlider" parent="Center/Panel/HBox/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="BeginButton" type="Button" parent="Center/Panel/HBox/Form"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 22

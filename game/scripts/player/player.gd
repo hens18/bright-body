@@ -3,8 +3,9 @@ extends CharacterBody3D
 ## Third person action hero: camera relative movement, sprint, jump, dodge roll,
 ## a three hit melee combo, aimed ranged weapons (bow, crossbow, magic) and enemy lock on.
 ##
-## The placeholder body lives under "Visual". To use a Blender model, drop its
-## .glb under Visual and delete the placeholder meshes. If the model has an
+## The hero model lives at "Visual/Hero" and is recolored and scaled by the
+## player's HeroAppearance. To use a new Blender model, replace Visual/Hero with
+## its .glb (keep the node name). If the model has an
 ## AnimationPlayer with clips named Idle, Run, Jump, Dodge, Attack1..3, Shoot,
 ## Hurt or Death, they are played automatically.
 
@@ -98,6 +99,10 @@ var _draw_time := 0.0
 func _ready() -> void:
 	stamina = max_stamina
 	mana = max_mana
+	# Looked up by path (not the GameState name) so the script also compiles in headless test runners.
+	var game_state := get_node_or_null(^"/root/GameState")
+	if game_state:
+		game_state.appearance.apply(visual.get_node_or_null(^"Hero"))
 	_weapon_cooldowns.resize(weapons.size())
 	_weapon_cooldowns.fill(0.0)
 	_spring_arm.spring_length = camera_distance

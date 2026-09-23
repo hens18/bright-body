@@ -1,12 +1,13 @@
 extends Node
 ## Global, persistent game state. Registered as the GameState autoload.
-## Grows into the save system: hero name now, skill points and gear later.
+## Grows into the save system: hero name and look now, skill points and gear later.
 
 const SAVE_PATH := "user://profile.cfg"
 const MAX_NAME_LENGTH := 20
 const DEFAULT_NAME := "Wanderer"
 
 var hero_name := ""
+var appearance := HeroAppearance.new()
 
 
 func _ready() -> void:
@@ -28,6 +29,7 @@ func display_name() -> String:
 func save_profile() -> void:
 	var config := ConfigFile.new()
 	config.set_value("hero", "name", hero_name)
+	config.set_value("hero", "appearance", appearance.to_dict())
 	config.save(SAVE_PATH)
 
 
@@ -35,3 +37,4 @@ func load_profile() -> void:
 	var config := ConfigFile.new()
 	if config.load(SAVE_PATH) == OK:
 		hero_name = config.get_value("hero", "name", "")
+		appearance = HeroAppearance.from_dict(config.get_value("hero", "appearance", {}))
