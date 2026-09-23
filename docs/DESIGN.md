@@ -72,8 +72,8 @@ Each boss teaches one lesson the next one builds on.
    punishing. One phase.
 2. **The Hollow Choir** (Region 2). A floating caster with summoned adds. Teaches ranged combat, target
    switching with lock on, and managing mana. Two phases.
-3. **Final boss** (the Cathedral, name to be decided). The final boss, fast and mixing melee with magic. Tests everything
-   the player has learned. Three phases, with arena changes between them.
+3. **Final boss** (the Cathedral, name to be decided). Fast, mixing melee with magic. Tests everything the
+   player has learned. Three phases, with arena changes between them.
 
 Difficulty increases through more health and damage, but mostly through shorter windups, longer combos,
 more phases and new attack types.
@@ -99,13 +99,13 @@ random loot, since every item is handplaced. That keeps balancing manageable for
 
 1. **Combat prototype** (done): greybox arena, hero, two enemy types, HUD, smoke test.
 2. **Naming and ranged weapons** (done): title screen, longbow, crossbow, magic, mana.
-2b. **Hero customization** (done): armor and trim colors, height and build, with a live 3D preview.
-3. **Boss 1, The Warden**: boss framework (phases, health bar, arena), first boss fight.
-4. **Skill tree and gear**: data driven skills, skill tree menu, equipment, save and load.
-5. **Region 1 greybox**: open world streaming, hub, shrines, chests, enemy camps.
-6. **Art pass on Region 1**: gothic kit in Blender (walls, arches, windows, props), lighting.
-7. **Bosses 2 and 3, Regions 2 and 3.**
-8. **Polish**: audio, menus, balancing, performance.
+3. **Hero customization** (done): armor and trim colors, height and build, with a live 3D preview.
+4. **Boss 1, The Warden**: boss framework (phases, health bar, arena), first boss fight.
+5. **Skill tree and gear**: data driven skills, skill tree menu, equipment, save and load.
+6. **Region 1 greybox**: open world streaming, hub, shrines, chests, enemy camps.
+7. **Art pass on Region 1**: gothic kit in Blender (walls, arches, windows, props), lighting.
+8. **Bosses 2 and 3, Regions 2 and 3.**
+9. **Polish**: audio, menus, balancing, performance.
 
 ## Art direction
 
